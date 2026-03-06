@@ -1,0 +1,32 @@
+
+theta1 = deg2rad(0); %[control:slider:090c]{"position":[18,19]}
+theta2 = deg2rad(0); %[control:slider:0e33]{"position":[18,19]}
+theta3 = deg2rad(0); %[control:slider:062c]{"position":[18,19]}
+theta4 = deg2rad(0); %[control:slider:97cf]{"position":[18,19]}
+
+a1 = dh_link_to_transformation_matrix(0, 90, 0, theta1);
+a2 = dh_link_to_transformation_matrix(0, 0, 150, theta2-pi/4);
+a3 = dh_link_to_transformation_matrix(0, 0, 150, theta3-pi/4);
+a4 = dh_link_to_transformation_matrix(0, 90, 0, theta4); % d4 might be something
+T = a1 * a2 * a3 * a4;
+
+%[text] Let's now plot the origin and the location of the end effector in a top down view (XY plane) and a front view (XZ plane)
+plot(0, 0, "bo" Ma)
+
+%[appendix]{"version":"1.0"}
+%---
+%[metadata:view]
+%   data: {"layout":"onright"}
+%---
+%[control:slider:090c]
+%   data: {"defaultValue":0,"label":"theta1","max":100,"min":-100,"run":"Section","runOn":"ValueChanging","step":10}
+%---
+%[control:slider:0e33]
+%   data: {"defaultValue":0,"label":"theta2","max":100,"min":-100,"run":"Section","runOn":"ValueChanging","step":10}
+%---
+%[control:slider:062c]
+%   data: {"defaultValue":0,"label":"theta3","max":100,"min":-100,"run":"Section","runOn":"ValueChanging","step":10}
+%---
+%[control:slider:97cf]
+%   data: {"defaultValue":0,"label":"theta4","max":100,"min":-100,"run":"Section","runOn":"ValueChanging","step":10}
+%---
