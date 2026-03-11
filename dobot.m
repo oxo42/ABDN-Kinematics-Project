@@ -1,4 +1,4 @@
-classdef dobot
+classdef dobot < handle
     %ROBOT Dobot Magician Lite
     %   Detailed explanation goes here
 
