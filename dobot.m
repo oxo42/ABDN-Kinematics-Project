@@ -41,19 +41,23 @@ classdef dobot < handle
             end
         end
 
-        function T = transform(obj, i, j)
-            % returns the transformation matrix for joint j from frame i
-            % so the end effector would be 0, 4
-            t = obj.joint_matrix(i);
+        function T = transform_equation(obj, i, j)
+            % returns the transformation matrix in symbolic equation form
+            % for joint j from frame i so the end effector would be 0, 4
+            T = obj.joint_matrix(i);
             for k = i+1:j
                 if k == 4
                     % If we go to the end effector we need to include the
                     % passive joint to rotate the end effector parallel to
                     % the ground
-                    t = t * obj.joint_matrix('p');
+                    T = T * obj.joint_matrix('p');
                 end
-                t = t * obj.joint_matrix(k);
+                T = T * obj.joint_matrix(k);
             end
+        end
+
+        function T = transform(obj, i, j)
+            t = obj.transform_equation(i, j);
             func = matlabFunction(t);
             T = func(obj.Theta1, obj.Theta2, obj.Theta3, obj.Theta4);
         end
@@ -97,6 +101,17 @@ classdef dobot < handle
             obj.Theta3 = thet_3down;
             % theta4 rotates the end effector and has no impact here
             obj.Theta4 = 1;
+        end
+
+        function J = jacobian(obj)
+            T = obj.transform_equation(1, 4);
+            X_def = T(1,4);
+            Y_def = T(2,4);
+            Z_def = T(3,4);
+            syms theta1 theta2 theta3 
+            J = jacobian([X_def, Y_def, Z_def], [theta1, theta2, theta3]);
+            % Ugh, this is not the Jacobian.  The actual Jacobian is [Jv Jw]'
+            % which for this robot is a 6x4 matrix
         end
     end
 end
