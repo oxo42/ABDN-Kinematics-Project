@@ -103,8 +103,8 @@ classdef dobot < handle
 
             % Todo check this if it's beyond 90 deg
             thet1 = atan2(y,x);
-            thet2up = atan2(z,r)+acos(h/0.3);
-            thet2down = atan2(z,r)-acos(h/0.3);
+            thet2up = rad2deg(atan2(z,r)+acos(h/0.3));
+            thet2down = rad2deg(atan2(z,r)-acos(h/0.3));
 
             C3 = (((r^2)+(z^2)-(0.15^2)-(0.15^2))/(2*0.15*0.15));
             S3down = sqrt(1-C3^2);
@@ -138,6 +138,79 @@ classdef dobot < handle
             Jv = [jv(1) jv(2) jv(3) jv(4)];
             Jw = [jw(1) jw(2) jw(3) jw(4)];
             J = [Jv ; Jw];
+        end
+
+        function Ja = analytical_jacobian(obj)
+            % Analytical Jacobian for the task vector:
+            % [x; y; z; psi]
+            % where psi = theta1 + theta4
+            %
+            % Assumes:
+            % L1 = 0.15 m
+            % L2 = 0.15 m
+            % Lt = 0
+
+            q1 = obj.Theta1;
+            q2 = obj.Theta2;
+            q3 = obj.Theta3;
+            q4 = obj.Theta4; 
+
+            L1 = 0.15;
+            L2 = 0.15;
+
+            r = L1*cos(q2) + L2*cos(q2 + q3);
+
+            Ja = [ 
+                -r*sin(q1),  cos(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*cos(q1),  0;
+                 r*cos(q1),  sin(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*sin(q1),  0;
+                 0,          L1*cos(q2) + L2*cos(q2 + q3),              L2*cos(q2 + q3),           0;
+                 1,          0,                                          0,                          1
+                 ];
+        end
+
+        function detJa = singularity_det(obj)
+            % Determinant of the analytical Jacobian
+            % Singular when detJa = 0
+
+            q2 = obj.Theta2;
+            q3 = obj.Theta3;
+
+            L1 = 0.15;
+            L2 = 0.15;
+
+            r = L1*cos(q2) + L2*cos(q2 + q3);
+
+            detJa = L1 * L2 * sin(q3) * r;
+        end
+
+        function tf = is_singular(obj, tol)
+            % Returns true if robot is in a singular configuration
+            arguments
+                obj
+                tol = 1e-6
+            end
+
+            tf = abs(obj.singularity_det()) < tol;
+        end
+
+        function [cond1, cond2] = singularity_conditions(obj, tol)
+            % Returns the two singularity conditions separately
+            % cond1: sin(theta3) = 0
+            % cond2: L1*cos(theta2) + L2*cos(theta2+theta3) = 0
+
+            arguments
+                obj
+                tol = 1e-6
+            end
+
+            q2 = obj.Theta2;
+            q3 = obj.Theta3;
+
+            L1 = 0.15;
+            L2 = 0.15;
+
+            cond1 = abs(sin(q3)) < tol;
+            cond2 = abs(L1*cos(q2) + L2*cos(q2 + q3)) < tol;
         end
     end
 end
