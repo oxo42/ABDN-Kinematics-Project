@@ -86,6 +86,7 @@ classdef dobot < handle
             h=sqrt(r^2+z^2);
             t=sqrt((0.15^2)-((h/2)^2));
 
+            % Todo check this if it's beyond 90 deg
             thet1 = atan2(y,x);
             thet2up = atan2(z,r)+acos(h/0.3);
             thet2down = atan2(z,r)-acos(h/0.3);
@@ -99,19 +100,12 @@ classdef dobot < handle
             obj.Theta1 = thet1;
             obj.Theta2 = thet2down;
             obj.Theta3 = thet_3down;
-            % theta4 rotates the end effector and has no impact here
-            obj.Theta4 = 1;
         end
 
         function J = jacobian(obj)
-            T = obj.transform_equation(1, 4);
-            X_def = T(1,4);
-            Y_def = T(2,4);
-            Z_def = T(3,4);
-            syms theta1 theta2 theta3 
-            J = jacobian([X_def, Y_def, Z_def], [theta1, theta2, theta3]);
+            J = zeros(6, 4);
             % Ugh, this is not the Jacobian.  The actual Jacobian is [Jv Jw]'
-            % which for this robot is a 6x4 matrix
+            % which for this robot is a 6x3 matrix
         end
     end
 end
