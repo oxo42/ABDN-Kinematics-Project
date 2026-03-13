@@ -59,7 +59,9 @@ classdef dobot < handle
         function T = transform(obj, i, j)
             t = obj.transform_equation(i, j);
             func = matlabFunction(t);
-            T = func(obj.Theta1, obj.Theta2, obj.Theta3, obj.Theta4);
+            thetas = [obj.Theta1 obj.Theta2, obj.Theta3, obj.Theta4];
+            args = num2cell(thetas(1:j));
+            T = func(args{:});
         end
 
         function loc = joint_loc(obj, j)
@@ -70,8 +72,21 @@ classdef dobot < handle
         end
 
         function loc = xyz(obj)
-            % xyz of end effector
-            loc = obj.joint_loc(4);
+            loc = obj.o()';
+        end
+
+        function loc = o(obj, n)
+            %o returns the xyz coordinates as a 3x1
+            arguments
+                obj 
+                n=4 % The joint number
+            end
+            if n == 0
+                loc = [0;0;0];  % Origin is o0
+            else
+                T = obj.transform(1,n);
+                loc = T(1:3, 4);
+            end
         end
         
         function obj = set_end_effector(obj, xyz)
@@ -102,10 +117,27 @@ classdef dobot < handle
             obj.Theta3 = thet_3down;
         end
 
+        function R = z(obj, i)
+            % Gives the z-rotation segment of the rotation matrix for the
+            % grame
+            if i == 0
+                R = [0 0 1]';
+            else    
+                R = obj.transform(1, i);
+                R = R(1:3, 3);
+            end
+        end
+
         function J = jacobian(obj)
-            J = zeros(6, 4);
-            % Ugh, this is not the Jacobian.  The actual Jacobian is [Jv Jw]'
-            % which for this robot is a 6x3 matrix
+            % Jv = zi-1 X (On - Oi-1)
+            % Jw = Zi-1
+
+            jv = @(i) cross(obj.z(i-1), obj.o(4) - obj.o(i-1));
+            jw = @(i) obj.z(i-1);
+
+            Jv = [jv(1) jv(2) jv(3) jv(4)];
+            Jw = [jw(1) jw(2) jw(3) jw(4)];
+            J = [Jv ; Jw];
         end
     end
 end
