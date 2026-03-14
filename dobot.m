@@ -1,12 +1,20 @@
 classdef dobot < handle
     %ROBOT Dobot Magician Lite
-    %   Detailed explanation goes here
+    %   This class represents a simplified model of the Dobot Magician Lite. We
+    %   are modelling it as an open chain rather than a series of 4-bar
+    %   linkages.  There is a passive join to ensure the end effector remains
+    %   parallel to the ground
+    %
+    %   All angles are in Radians
+    %   All distances are in metres
 
     properties
         Theta1
         Theta2
         Theta3
         Theta4
+        L1 = 0.15 % Link between joints 2 and 3
+        L2 = 0.15 % Link between joints 3 and 4
     end
 
     methods
@@ -25,17 +33,17 @@ classdef dobot < handle
             syms theta1 theta2 theta3 theta4
             switch i
                 case 1
-                    A = dh_link_to_transformation_matrix(0, pi/2, 0, theta1);
+                    A = dh(0, pi/2, 0, theta1);
                 case 2
-                    A = dh_link_to_transformation_matrix(0.15, 0, 0, theta2);
+                    A = dh(0.15, 0, 0, theta2);
                 case 3
-                    A = dh_link_to_transformation_matrix(0.15, 0, 0, theta3);
+                    A = dh(0.15, 0, 0, theta3);
                 case 'p'
                     % The passive joint that rotates the end effector
                     % parallel to the ground
-                    A = dh_link_to_transformation_matrix(0, pi/2, 0, - theta2 - theta3); 
+                    A = dh(0, pi/2, 0, - theta2 - theta3); 
                 case 4
-                    A = dh_link_to_transformation_matrix(0, 0, 0, theta4); 
+                    A = dh(0, 0, 0, theta4); 
                 otherwise
                     error("unknown joint")
             end
@@ -146,7 +154,7 @@ classdef dobot < handle
             % where psi = theta1 + theta4
             %
             % Assumes:
-            % L1 = 0.15 m
+            % L1 = obj.L1 m
             % L2 = 0.15 m
             % Lt = 0
 
@@ -154,17 +162,16 @@ classdef dobot < handle
             q2 = obj.Theta2;
             q3 = obj.Theta3;
             q4 = obj.Theta4; 
-
-            L1 = 0.15;
-            L2 = 0.15;
+            L1 = obj.L1;
+            L2 = obj.L2;
 
             r = L1*cos(q2) + L2*cos(q2 + q3);
 
             Ja = [ 
                 -r*sin(q1),  cos(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*cos(q1),  0;
-                 r*cos(q1),  sin(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*sin(q1),  0;
-                 0,          L1*cos(q2) + L2*cos(q2 + q3),              L2*cos(q2 + q3),           0;
-                 1,          0,                                          0,                          1
+                r*cos(q1),   sin(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*sin(q1),  0;
+                0,           L1*cos(q2) + L2*cos(q2 + q3),              L2*cos(q2 + q3),          0;
+                1,           0,                                          0,                       1
                  ];
         end
 
@@ -174,9 +181,8 @@ classdef dobot < handle
 
             q2 = obj.Theta2;
             q3 = obj.Theta3;
-
-            L1 = 0.15;
-            L2 = 0.15;
+            L1 = obj.L1;
+            L2 = obj.L2;
 
             r = L1*cos(q2) + L2*cos(q2 + q3);
 
@@ -206,11 +212,37 @@ classdef dobot < handle
             q2 = obj.Theta2;
             q3 = obj.Theta3;
 
-            L1 = 0.15;
-            L2 = 0.15;
+            L1 = obj.L1;
+            L2 = obj.L2;
 
             cond1 = abs(sin(q3)) < tol;
             cond2 = abs(L1*cos(q2) + L2*cos(q2 + q3)) < tol;
         end
     end
+end
+
+function matrix = dh(a, alpha, d, theta)
+%DH_LINK_TO_TRANSFORMATION_MATRIX Turn DH link parameters into a homogenous transformation matricx
+%   Detailed explanation goes here
+%   a: metres
+%   alpha: radians
+%   d: metres
+%   theta: radians
+arguments (Input)
+    a
+    alpha
+    d
+    theta
+end
+
+arguments (Output)
+    matrix
+end
+
+    matrix = [
+        cos(theta)  -1*sin(theta)*cos(alpha)    sin(theta)*sin(alpha)       a*cos(theta) ;
+        sin(theta)  cos(theta)*cos(alpha)       -1*cos(theta)*sin(alpha)    a*sin(theta) ; 
+        0           sin(alpha)                  cos(alpha)                  d            ;
+        0           0                           0                           1       
+            ];
 end
