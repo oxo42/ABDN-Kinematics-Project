@@ -7,6 +7,14 @@ classdef dobot_tests < matlab.unittest.TestCase
     end
 
     methods (Test)
+        function testConstructor(testCase)
+            d = dobot(1, 2, 3, 4);
+            testCase.verifyEqual(d.Theta1, 1);
+            testCase.verifyEqual(d.Theta2, 2);
+            testCase.verifyEqual(d.Theta3, 3);
+            testCase.verifyEqual(d.Theta4, 4);
+        end
+
         function testInverseKinematics(testCase)
             a = dobot();
             a.Theta1 = deg2rad(45);
