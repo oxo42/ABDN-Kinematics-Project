@@ -27,10 +27,10 @@ s.analytical_jacobian() %[output:036cfc5e]
 %   data: {"dataType":"matrix","outputData":{"columns":4,"name":"T1","rows":4,"type":"double","value":[["0.6124","-0.6124","0.5000","0.0919"],["0.3536","-0.3536","-0.8660","0.0530"],["0.7071","0.7071","0.0000","0.1061"],["0","0","0","1.0000"]]}}
 %---
 %[output:891bc6b2]
-%   data: {"dataType":"textualVariable","outputData":{"name":"r","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 0\n    Theta4: 0\n"}}
+%   data: {"dataType":"textualVariable","outputData":{"name":"r","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 0\n    Theta4: 0\n        L1: 0.1500\n        L2: 0.1500\n"}}
 %---
 %[output:4f4161be]
-%   data: {"dataType":"textualVariable","outputData":{"name":"ans","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 2.9802e-08\n    Theta4: 0\n"}}
+%   data: {"dataType":"textualVariable","outputData":{"name":"ans","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: -2.9802e-08\n    Theta4: 0\n        L1: 0.1500\n        L2: 0.1500\n"}}
 %---
 %[output:126d382b]
 %   data: {"dataType":"matrix","outputData":{"columns":4,"name":"ans","rows":6,"type":"double","value":[["-0.1061","-0.1837","-0.0919","0"],["0.1837","-0.1061","-0.0530","0"],["0","0.2121","0.1061","0"],["0","0.5000","0.5000","0.5000"],["0","-0.8660","-0.8660","-0.8660"],["1.0000","0.0000","0.0000","0.0000"]]}}
