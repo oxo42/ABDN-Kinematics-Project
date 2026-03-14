@@ -97,32 +97,44 @@ classdef dobot < handle
             end
         end
         
-        function obj = set_end_effector(obj, xyz)
+        function obj = set_end_effector(obj, xyz, elbowUp)
             % Inverse kinematics
             % xyz is a 1x3 matrix
-            % TODO Figure out elbow up/down
+            arguments
+                xyz
+                elbowUp = true
+            end
+
             x = xyz(1);
             y = xyz(2);
             z = xyz(3);
+            L1 = obj.L1;
+            L2 = obj.L2;
 
-            r=sqrt(x^2+y^2);
-            h=sqrt(r^2+z^2);
-            t=sqrt((0.15^2)-((h/2)^2));
+            r = sqrt(x^2 + y^2);
+            h = sqrt(r^2 + z^2);
 
-            % Todo check this if it's beyond 90 deg
-            thet1 = atan2(y,x);
-            thet2up = atan2(z,r)+acos(h/0.3);
-            thet2down = atan2(z,r)-acos(h/0.3);
+            % Reachability check
+            if h > (L1 + L2) + 1e-9
+                msg = sprintf('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, L1 + L2);
+                error(msg);
+            end
 
-            C3 = (((r^2)+(z^2)-(0.15^2)-(0.15^2))/(2*0.15*0.15));
-            S3down = sqrt(1-C3^2);
-            S3up = -S3down;
-            thet_3up = atan2(S3up,C3);
-            thet_3down = atan2(S3down,C3);
+            c3 = (r^2 + z^2 - L1^2 - L2^2) / (2 * L1 * L2);
+            c3 = max(min(c3, 1), -1);
+            s3mag = sqrt(max(0, 1 - c3^2));
 
-            obj.Theta1 = thet1;
-            obj.Theta2 = thet2down;
-            obj.Theta3 = thet_3down;
+            if elbowUp
+                s3 = -s3mag;
+            else
+                s3 = +s3mag;
+            end
+
+            obj.Theta1 = atan2(y, x);
+            obj.Theta3 = atan2(s3, c3);
+
+            % Standard 2-link planar IK
+            obj.Theta2 = atan2(z, r) - atan2(L2 * s3, L1 + L2 * c3);
         end
 
         function R = z(obj, i)
