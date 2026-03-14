@@ -8,7 +8,8 @@ r %[output:891bc6b2]
 %%
 s = dobot();
 s.set_end_effector(r.xyz()) %[output:4f4161be]
-s.jacobian() %[output:126d382b] %[output:036cfc5e] %[output:6e4b3ea1] %[output:39820a78]
+s.jacobian() %[output:126d382b]
+s.analytical_jacobian() %[output:036cfc5e]
 
 
 %[appendix]{"version":"1.0"}
@@ -29,17 +30,11 @@ s.jacobian() %[output:126d382b] %[output:036cfc5e] %[output:6e4b3ea1] %[output:3
 %   data: {"dataType":"textualVariable","outputData":{"name":"r","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 0\n    Theta4: 0\n"}}
 %---
 %[output:4f4161be]
-%   data: {"dataType":"textualVariable","outputData":{"name":"ans","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 1.7075e-06\n    Theta4: 0\n"}}
+%   data: {"dataType":"textualVariable","outputData":{"name":"ans","value":"  <a href=\"matlab:helpPopup('dobot')\" style=\"font-weight:bold\">dobot<\/a> with properties:\n\n    Theta1: 0.5236\n    Theta2: 0.7854\n    Theta3: 2.9802e-08\n    Theta4: 0\n"}}
 %---
 %[output:126d382b]
-%   data: {"dataType":"matrix","outputData":{"columns":1,"name":"jv1","rows":3,"type":"double","value":[["-0.1061"],["0.1837"],["0"]]}}
+%   data: {"dataType":"matrix","outputData":{"columns":4,"name":"ans","rows":6,"type":"double","value":[["-0.1061","-0.1837","-0.0919","0"],["0.1837","-0.1061","-0.0530","0"],["0","0.2121","0.1061","0"],["0","0.5000","0.5000","0.5000"],["0","-0.8660","-0.8660","-0.8660"],["1.0000","0.0000","0.0000","0.0000"]]}}
 %---
 %[output:036cfc5e]
-%   data: {"dataType":"matrix","outputData":{"columns":4,"name":"Jv","rows":3,"type":"double","value":[["-0.1061","-0.1837","-0.0919","0"],["0.1837","-0.1061","-0.0530","0"],["0","0.2121","0.1061","0"]]}}
-%---
-%[output:6e4b3ea1]
-%   data: {"dataType":"matrix","outputData":{"columns":4,"name":"Jw","rows":3,"type":"double","value":[["0","0.5000","0.5000","0.5000"],["0","-0.8660","-0.8660","-0.8660"],["1.0000","0.0000","0.0000","0.0000"]]}}
-%---
-%[output:39820a78]
-%   data: {"dataType":"matrix","outputData":{"columns":4,"name":"ans","rows":6,"type":"double","value":[["-0.1061","-0.1837","-0.0919","0"],["0.1837","-0.1061","-0.0530","0"],["0","0.2121","0.1061","0"],["0","0.5000","0.5000","0.5000"],["0","-0.8660","-0.8660","-0.8660"],["1.0000","0.0000","0.0000","0.0000"]]}}
+%   data: {"dataType":"matrix","outputData":{"columns":4,"name":"ans","rows":4,"type":"double","value":[["-0.1061","-0.1837","-0.0919","0"],["0.1837","-0.1061","-0.0530","0"],["0","0.2121","0.1061","0"],["1.0000","0","0","1.0000"]]}}
 %---

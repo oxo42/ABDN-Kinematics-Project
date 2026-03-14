@@ -119,7 +119,7 @@ classdef dobot < handle
 
         function R = z(obj, i)
             % Gives the z-rotation segment of the rotation matrix for the
-            % grame
+            % frame
             if i == 0
                 R = [0 0 1]';
             else    
