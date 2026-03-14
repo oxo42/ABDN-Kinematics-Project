@@ -103,14 +103,14 @@ classdef dobot < handle
 
             % Todo check this if it's beyond 90 deg
             thet1 = atan2(y,x);
-            thet2up = rad2deg(atan2(z,r)+acos(h/0.3));
-            thet2down = rad2deg(atan2(z,r)-acos(h/0.3));
+            thet2up = atan2(z,r)+acos(h/0.3);
+            thet2down = atan2(z,r)-acos(h/0.3);
 
             C3 = (((r^2)+(z^2)-(0.15^2)-(0.15^2))/(2*0.15*0.15));
             S3down = sqrt(1-C3^2);
             S3up = -S3down;
-            thet_3up = rad2deg(atan2(S3up,C3));
-            thet_3down = rad2deg(atan2(S3down,C3));
+            thet_3up = atan2(S3up,C3);
+            thet_3down = atan2(S3down,C3);
 
             obj.Theta1 = thet1;
             obj.Theta2 = thet2down;
