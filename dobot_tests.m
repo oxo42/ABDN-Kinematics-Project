@@ -11,7 +11,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(30);
+            a.Theta3 = deg2rad(-30);
 
             b = dobot();
             b.set_end_effector(a.xyz());
@@ -24,7 +24,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(-30);
+            a.Theta3 = deg2rad(30);
 
             b = dobot();
             b.set_end_effector(a.xyz(), false);  % elbowUp = false
@@ -44,10 +44,21 @@ classdef dobot_tests < matlab.unittest.TestCase
 
         function testElbowUp(testCase)
             % verify that when we put the joins in an elbow up position the parameter reflects that
+            a = dobot();
+            a.Theta1 = deg2rad(45);
+            a.Theta2 = deg2rad(40);
+            a.Theta3 = deg2rad(-30);
+            testCase.assertTrue(a.elbowUp)
+
         end
 
         function testElbowDown(testCase)
-            % verify that when we put the joins in an elbow up position the parameter reflects that
+            % verify that when we put the joins in an elbow down position the parameter reflects that
+            a = dobot();
+            a.Theta1 = deg2rad(45);
+            a.Theta2 = deg2rad(40);
+            a.Theta3 = deg2rad(30);
+            testCase.assertFalse(a.elbowUp)
         end
 
         function reachabilityTest(testCase)

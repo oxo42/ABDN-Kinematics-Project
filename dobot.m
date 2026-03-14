@@ -27,6 +27,10 @@ classdef dobot < handle
             obj.Theta4 = 0;
         end
 
+        function E = elbowUp(obj)
+            E = obj.Theta3 < 0;
+        end
+
         function A = joint_matrix(obj, i)
             % Returns the homogenous transformation matrix for a specific
             % joint
@@ -121,38 +125,22 @@ classdef dobot < handle
                 error(msg);
             end
             %
-            % c3 = (r^2 + z^2 - L1^2 - L2^2) / (2 * L1 * L2);
-            % c3 = max(min(c3, 1), -1);
-            % s3mag = sqrt(max(0, 1 - c3^2));
-            %
-            % if elbowUp
-            %     s3 = -s3mag;
-            % else
-            %     s3 = +s3mag;
-            % end
-            %
-            % obj.Theta1 = atan2(y, x);
-            % obj.Theta3 = atan2(s3, c3);
-            %
-            % % Standard 2-link planar IK
-            % obj.Theta2 = atan2(z, r) - atan2(L2 * s3, L1 + L2 * c3);
+            c3 = (r^2 + z^2 - L1^2 - L2^2) / (2 * L1 * L2);
+            c3 = max(min(c3, 1), -1);
 
+            obj.Theta1 = atan2(y, x);
 
-            t=sqrt((0.15^2)-((h/2)^2));
-            % Todo check this if it's beyond 90 deg
-            thet1 = atan2(y,x);
-            thet2up = atan2(z,r)+acos(h/0.3);
-            thet2down = atan2(z,r)-acos(h/0.3);
+            s3 = sqrt(1-c3^2);
+            if elbowUp
+                s3 = -s3;
+            end
+            obj.Theta3 = atan2(s3, c3);
 
-            C3 = (((r^2)+(z^2)-(0.15^2)-(0.15^2))/(2*0.15*0.15));
-            S3down = sqrt(1-C3^2);
-            S3up = -S3down;
-            thet_3up = atan2(S3up,C3);
-            thet_3down = atan2(S3down,C3);
-
-            obj.Theta1 = thet1;
-            obj.Theta2 = thet2down;
-            obj.Theta3 = thet_3down;
+            if elbowUp
+                obj.Theta2 = atan2(z,r) + acos(h/(L1 + L2));
+            else
+                obj.Theta2 = atan2(z,r) - acos(h/(L1 + L2));
+            end
         end
 
         function R = z(obj, i)
