@@ -8,7 +8,7 @@ function ui_robot_v3()
 %   - IK target input
 
     % Initialize robot object
-    d = dobot(0, deg2rad(30), deg2rad(20), 0);
+    d = dobot(0, deg2rad(30), deg2rad(-20), 0);
 
     % ---------- UI Setup ----------
     fig = uifigure('Name', 'Dobot Magician Lite - UI Robot v3', 'Position', [100 80 1200 700]);
@@ -20,9 +20,10 @@ function ui_robot_v3()
     ax = uiaxes(plotPanel, 'Position', [10 10 800 640]);
     view(ax, 135, 25);
     grid(ax, 'on');
+    grid(ax, 'minor');
     hold(ax, 'on');
     xlabel(ax, 'X (m)'); ylabel(ax, 'Y (m)'); zlabel(ax, 'Z (m)');
-    axis(ax, [-0.4 0.4 -0.4 0.4 -0.05 0.4]);
+    axis(ax, [-0.3 0.3 -0.3 0.3 -0.03 0.3]);
 
     % Plot Handles
     hRobot = plot3(ax, [0 0 0 0], [0 0 0 0], [0 0 0 0], 'm-o', ...
@@ -62,15 +63,15 @@ function ui_robot_v3()
     xIn = uieditfield(cg, 'numeric', 'Value', 0.2); xIn.Layout.Row = 9; xIn.Layout.Column = 2;
     
     lblY = uilabel(cg, 'Text', 'Y (m)', 'HorizontalAlignment', 'right');
-    lblY.Layout.Row = 10;
+    lblY.Layout.Row = 10; lblY.Layout.Column = 1;
     yIn = uieditfield(cg, 'numeric', 'Value', 0.0); yIn.Layout.Row = 10; yIn.Layout.Column = 2;
     
     lblZ = uilabel(cg, 'Text', 'Z (m)', 'HorizontalAlignment', 'right');
-    lblZ.Layout.Row = 11;
+    lblZ.Layout.Row = 11; lblZ.Layout.Column = 1;
     zIn = uieditfield(cg, 'numeric', 'Value', 0.15); zIn.Layout.Row = 11; zIn.Layout.Column = 2;
 
     lblElbow = uilabel(cg, 'Text', 'elbow', 'HorizontalAlignment', 'right');
-    lblElbow.Layout.Row = 12;
+    lblElbow.Layout.Row = 12; lblElbow.Layout.Column = 1;
     elbowMode = uidropdown(cg, 'Items', {'up', 'down'}, 'Value', 'up');
     elbowMode.Layout.Row = 12; elbowMode.Layout.Column = [2 3];
 
@@ -111,9 +112,9 @@ function ui_robot_v3()
 
     function syncUI()
         thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
-        for i = 1:4
-            radFields{i}.Value = thetas(i);
-            degFields{i}.Value = rad2deg(thetas(i));
+        for j = 1:4
+            radFields{j}.Value = thetas(j);
+            degFields{j}.Value = rad2deg(thetas(j));
         end
     end
 
@@ -131,9 +132,9 @@ function ui_robot_v3()
         hRobot.ZData = pts(:,3);
         
         % Update T04 Display
-        T04 = d.transform(1, 4);
+        T04 = d.transform(1,4);
         tStr = sprintf('T04 Matrix:\n%s\n\nPosition [X Y Z]:\n[%.4f, %.4f, %.4f]', ...
-            evalc('disp(T04)'), p4(1), p4(2), p4(3));
+            formattedDisplayText(T04), p4(1), p4(2), p4(3));
         t04Display.Value = tStr;
         
         drawnow limitrate;
