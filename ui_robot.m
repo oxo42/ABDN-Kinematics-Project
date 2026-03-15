@@ -150,9 +150,9 @@ function ui_robot()
     function updateRobotPlot()
         % Get joint locations
         p0 = [0, 0, 0];
-        p2 = d.joint_loc(2);
-        p3 = d.joint_loc(3);
-        p4 = d.joint_loc(4);
+        p2 = d.jointLoc(2);
+        p3 = d.jointLoc(3);
+        p4 = d.jointLoc(4);
         
         % Update plot lines
         pts = [p0; p2; p3; p4];
@@ -173,7 +173,7 @@ function ui_robot()
         target = [xIn.Value, yIn.Value, zIn.Value];
         isUp = strcmpi(elbowMode.Value, 'up');
         try
-            d.set_end_effector(target, isUp);
+            d.setEndEffector(target, isUp);
             syncUI();
             updateRobotPlot();
         catch ME

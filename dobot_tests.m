@@ -22,7 +22,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a.Theta3 = deg2rad(-30);
 
             b = dobot();
-            b.set_end_effector(a.xyz());
+            b.setEndEffector(a.xyz());
             testCase.verifyEqual(b.Theta1, a.Theta1, 'Theta1', AbsTol=1e-5)
             testCase.verifyEqual(b.Theta2, a.Theta2, 'Theta2', AbsTol=1e-5)
             testCase.verifyEqual(b.Theta3, a.Theta3, 'Theta3', AbsTol=1e-5)
@@ -35,7 +35,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a.Theta3 = deg2rad(30);
 
             b = dobot();
-            b.set_end_effector(a.xyz(), false);  % elbowUp = false
+            b.setEndEffector(a.xyz(), false);  % elbowUp = false
             testCase.verifyEqual(b.Theta1, a.Theta1, 'Theta1', AbsTol=1e-5)
             testCase.verifyEqual(b.Theta2, a.Theta2, 'Theta2', AbsTol=1e-5)
             testCase.verifyEqual(b.Theta3, a.Theta3, 'Theta3', AbsTol=1e-5)
@@ -46,7 +46,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a.Theta1 = deg2rad(135);
 
             b = dobot();
-            b.set_end_effector(a.xyz());
+            b.setEndEffector(a.xyz());
             testCase.verifyEqual(b.Theta1, a.Theta1, 'Theta1', AbsTol=1e-5);
         end
 
@@ -71,7 +71,7 @@ classdef dobot_tests < matlab.unittest.TestCase
 
         function reachabilityTest(testCase)
             r = dobot();
-            call = @() r.set_end_effector([0.4 0 0]);
+            call = @() r.setEndEffector([0.4 0 0]);
             testCase.verifyError(call, '');
         end
     end

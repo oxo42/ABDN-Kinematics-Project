@@ -7,9 +7,9 @@ T1 = r.transform(1, 2) %[output:0fec495d]
 r %[output:891bc6b2]
 %%
 s = dobot();
-s.set_end_effector(r.xyz()) %[output:4f4161be]
+s.setEndEffector(r.xyz()) %[output:4f4161be]
 s.jacobian() %[output:126d382b]
-s.analytical_jacobian() %[output:036cfc5e]
+s.analyticalJacobian() %[output:036cfc5e]
 
 
 %[appendix]{"version":"1.0"}

@@ -36,7 +36,7 @@ classdef dobot < handle
             E = obj.Theta3 < 0;
         end
 
-        function A = joint_matrix(obj, i)
+        function A = jointMatrix(obj, i)
             % Returns the homogenous transformation matrix for a specific
             % joint
             syms theta1 theta2 theta3 theta4
@@ -58,30 +58,30 @@ classdef dobot < handle
             end
         end
 
-        function T = transform_equation(obj, i, j)
+        function T = transformEquation(obj, i, j)
             % returns the transformation matrix in symbolic equation form
             % for joint j from frame i so the end effector would be 0, 4
-            T = obj.joint_matrix(i);
+            T = obj.jointMatrix(i);
             for k = i+1:j
                 if k == 4
                     % If we go to the end effector we need to include the
                     % passive joint to rotate the end effector parallel to
                     % the ground
-                    T = T * obj.joint_matrix('p');
+                    T = T * obj.jointMatrix('p');
                 end
-                T = T * obj.joint_matrix(k);
+                T = T * obj.jointMatrix(k);
             end
         end
 
         function T = transform(obj, i, j)
-            t = obj.transform_equation(i, j);
+            t = obj.transformEquation(i, j);
             func = matlabFunction(t);
             thetas = [obj.Theta1 obj.Theta2, obj.Theta3, obj.Theta4];
             args = num2cell(thetas(1:j));
             T = func(args{:});
         end
 
-        function loc = joint_loc(obj, j)
+        function loc = jointLoc(obj, j)
             % Returns a matrix of XYZ coordinates of joint j in the base
             % frame
             T = obj.transform(1,j);
@@ -106,7 +106,7 @@ classdef dobot < handle
             end
         end
         
-        function obj = set_end_effector(obj, xyz, elbowUp)
+        function obj = setEndEffector(obj, xyz, elbowUp)
             % Inverse kinematics
             % xyz is a 1x3 matrix
             arguments
@@ -171,7 +171,7 @@ classdef dobot < handle
             J = [Jv ; Jw];
         end
 
-        function Ja = analytical_jacobian(obj)
+        function Ja = analyticalJacobian(obj)
             % Analytical Jacobian for the task vector:
             % [x; y; z; psi]
             % where psi = theta1 + theta4
@@ -198,7 +198,7 @@ classdef dobot < handle
                  ];
         end
 
-        function detJa = singularity_det(obj)
+        function detJa = singularityDet(obj)
             % Determinant of the analytical Jacobian
             % Singular when detJa = 0
 
@@ -212,17 +212,17 @@ classdef dobot < handle
             detJa = L1 * L2 * sin(q3) * r;
         end
 
-        function tf = is_singular(obj, tol)
+        function tf = isSingular(obj, tol)
             % Returns true if robot is in a singular configuration
             arguments
                 obj
                 tol = 1e-6
             end
 
-            tf = abs(obj.singularity_det()) < tol;
+            tf = abs(obj.singularityDet()) < tol;
         end
 
-        function [cond1, cond2] = singularity_conditions(obj, tol)
+        function [cond1, cond2] = singularityConditions(obj, tol)
             % Returns the two singularity conditions separately
             % cond1: sin(theta3) = 0
             % cond2: L1*cos(theta2) + L2*cos(theta2+theta3) = 0
