@@ -1,5 +1,5 @@
-function ui_robot_v3()
-% UI_ROBOT_V3
+function ui_robot()
+% UI_ROBOT
 % Enhanced MATLAB UI for the Dobot Magician Lite based on wireframe.
 % Features:
 %   - Dual Radian/Degree inputs for joints with auto-synchronization
@@ -11,7 +11,8 @@ function ui_robot_v3()
     d = dobot(0, deg2rad(30), deg2rad(-20), 0);
 
     % ---------- UI Setup ----------
-    fig = uifigure('Name', 'Dobot Magician Lite - UI Robot v3', 'Position', [100 80 1200 700]);
+    fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1200 700], ...
+        'WindowKeyPressFcn', @(src, event) onWindowKeyPress(event));
     mainLayout = uigridlayout(fig, [1 2]);
     mainLayout.ColumnWidth = {'2.5x', '1x'};
 
@@ -52,7 +53,8 @@ function ui_robot_v3()
         radFields{i} = uieditfield(cg, 'numeric', 'Value', 0, 'ValueChangedFcn', @(src, event) updateFromRad(i));
         radFields{i}.Layout.Row = row; radFields{i}.Layout.Column = 2;
         
-        degFields{i} = uieditfield(cg, 'numeric', 'Value', 0, 'ValueChangedFcn', @(src, event) updateFromDeg(i));
+        degFields{i} = uieditfield(cg, 'numeric', 'Value', 0, ...
+            'ValueChangedFcn', @(src, event) updateFromDeg(i));
         degFields{i}.Layout.Row = row; degFields{i}.Layout.Column = 3;
     end
 
@@ -100,6 +102,33 @@ function ui_robot_v3()
         val = degFields{idx}.Value;
         radFields{idx}.Value = deg2rad(val);
         updateRobotFromUI();
+    end
+
+    function onWindowKeyPress(event)
+        focusedObj = fig.CurrentObject;
+        for j = 1:4
+            if isequal(focusedObj, degFields{j})
+                switch event.Key
+                    case 'uparrow'
+                        degFields{j}.Value = degFields{j}.Value + 1;
+                        updateFromDeg(j);
+                    case 'downarrow'
+                        degFields{j}.Value = degFields{j}.Value - 1;
+                        updateFromDeg(j);
+                end
+                break;
+            elseif isequal(focusedObj, radFields{j})
+                switch event.Key
+                    case 'uparrow'
+                        radFields{j}.Value = radFields{j}.Value + 0.01;
+                        updateFromRad(j);
+                    case 'downarrow'
+                        radFields{j}.Value = radFields{j}.Value - 0.01;
+                        updateFromRad(j);
+                end
+                break;
+            end
+        end
     end
 
     function updateRobotFromUI()
