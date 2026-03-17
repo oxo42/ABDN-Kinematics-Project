@@ -21,9 +21,9 @@ classdef dobot < handle
         Theta2
         Theta3
         Theta4
-        L1 = 0.107
-        L2 = 0.15 % Link between joints 2 and 3
-        L3 = 0.15 % Link between joints 3 and 4
+        L1 = 0.107 % Link from base to joint 1
+        L2 = 0.15 % Link between joints 1 and 2
+        L3 = 0.15 % Link between joints 2 and 3
     end
 
     methods

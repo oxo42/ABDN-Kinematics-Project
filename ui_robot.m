@@ -33,7 +33,7 @@ function ui_robot()
     hJ2 = plot3(ax, 0, 0, 0, 'yo', 'MarkerSize', 8, 'MarkerFaceColor', 'y');
     hJ3 = plot3(ax, 0, 0, 0, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
     hJ4 = plot3(ax, 0, 0, 0, 'co', 'MarkerSize', 8, 'MarkerFaceColor', 'c');
-    legend(ax, {'Links', 'Base', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effector'}, 'Location', 'northeastoutside');
+    legend(ax, {'Links', 'World Origin', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effector'}, 'Location', 'northeastoutside');
 
     % --- Right: Controls ---
     controlPanel = uipanel(mainLayout, 'Title', 'Controls');
