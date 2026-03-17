@@ -1,0 +1,96 @@
+===== DOBOT PROJECT TEST SUMMARY =====
+[Warning: Objects of 'dobot' class exist.  Cannot clear this class or any of its superclasses.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('dobot_test_summary', 'F:\Shubham Raj\MSc Masters program related admissin preparation\University of Aberdeen\MATLAB Practice Files\dobot_test_summary.m', 5)" style="font-weight:bold">dobot_test_summary</a> (<a href="matlab: opentoline('F:\Shubham Raj\MSc Masters program related admissin preparation\University of Aberdeen\MATLAB Practice Files\dobot_test_summary.m',5,0)">line 5</a>)] 
+--- Constructor Test ---
+
+r = 
+
+  <a href="matlab:helpPopup('dobot')" style="font-weight:bold">dobot</a> with properties:
+
+    Theta1: 0
+    Theta2: 0
+    Theta3: 0
+    Theta4: 0
+        L1: 0.1070
+        L2: 0.1500
+        L3: 0.1500
+
+--- Forward Kinematics ---
+
+xyz =
+
+    0.1837    0.1061    0.3191
+
+
+T =
+
+    0.8660    0.5000    0.0000    0.1837
+    0.5000   -0.8660   -0.0000    0.1061
+         0    0.0000   -1.0000    0.3191
+         0         0         0    1.0000
+
+--- Inverse Kinematics ---
+
+angles =
+
+   0.5236 + 0.0000i   0.7854 + 0.0000i   0.0000 + 0.0000i   0.0000 + 0.0000i
+
+--- Jacobian ---
+
+J =
+
+   -0.1061   -0.1837   -0.0919         0
+    0.1837   -0.1061   -0.0530         0
+         0    0.2121    0.1061         0
+         0    0.5000    0.5000    0.5000
+         0   -0.8660   -0.8660   -0.8660
+    1.0000    0.0000    0.0000    0.0000
+
+
+Ja =
+
+   -0.1061   -0.1837   -0.0919         0
+    0.1837   -0.1061   -0.0530         0
+         0    0.2121    0.1061         0
+    1.0000         0         0    1.0000
+
+--- Singularity Test ---
+
+detJa =
+
+     0
+
+
+tf =
+
+  <a href="matlab:helpPopup('logical')" style="font-weight:bold">logical</a>
+
+   1
+
+--- Unit Tests ---
+Running dobot_tests
+.......... .
+Done dobot_tests
+__________
+
+
+ans =
+
+  11×6 <a href="matlab:helpPopup('table')" style="font-weight:bold">table</a>
+
+                         <strong>Name</strong>                         <strong>Passed</strong>    <strong>Failed</strong>    <strong>Incomplete</strong>    <strong>Duration</strong>       <strong>Details</strong>   
+    <strong>______________________________________________</strong>    <strong>______</strong>    <strong>______</strong>    <strong>__________</strong>    <strong>_________</strong>    <strong>____________</strong>
+
+    {'dobot_tests/testConstructor'               }    true      false       false         0.56653    {1×1 struct}
+    {'dobot_tests/testInverseKinematics'         }    true      false       false         0.33117    {1×1 struct}
+    {'dobot_tests/testInverseKinematicsElbowDown'}    true      false       false        0.061049    {1×1 struct}
+    {'dobot_tests/testTheta1GreaterThan90'       }    true      false       false       0.0059542    {1×1 struct}
+    {'dobot_tests/testElbowUp'                   }    true      false       false       0.0092371    {1×1 struct}
+    {'dobot_tests/testElbowDown'                 }    true      false       false         0.10396    {1×1 struct}
+    {'dobot_tests/reachabilityTest'              }    true      false       false         0.42077    {1×1 struct}
+    {'dobot_tests/testSingularity'               }    true      false       false       0.0083749    {1×1 struct}
+    {'dobot_tests/testJacobianConsistency'       }    true      false       false        0.069711    {1×1 struct}
+    {'dobot_tests/testPassiveJointOrientation'   }    true      false       false       0.0047033    {1×1 struct}
+    {'dobot_tests/testBoundaryReachability'      }    true      false       false        0.028559    {1×1 struct}
+
+===== TESTING COMPLETE =====
