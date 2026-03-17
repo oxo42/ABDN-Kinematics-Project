@@ -71,6 +71,7 @@ classdef dobot_tests < matlab.unittest.TestCase
 
         function reachabilityTest(testCase)
             r = dobot();
+            % Workspace is shifted by L1 vertically. 0.4 is too far (max reach 0.3)
             call = @() r.setEndEffector([0.4 0 0]);
             testCase.verifyError(call, '');
         end
@@ -110,11 +111,15 @@ classdef dobot_tests < matlab.unittest.TestCase
 
         function testBoundaryReachability(testCase)
             d = dobot();
-            max_reach = d.L2 + d.L3;
-            
+            l2 = d.L2;
+            l3 = d.L3;
+            l1 = d.L1;
+            max_reach = l2 + l3;
+
             % Test exactly at the limit - should not throw error
-            d.setEndEffector([max_reach, 0, 0]);
-            testCase.verifyEqual(d.xyz(), [max_reach, 0, 0], 'AbsTol', 1e-7);
+            % At max horizontal reach, z should be l1
+            d.setEndEffector([max_reach, 0, l1]);
+            testCase.verifyEqual(d.xyz(), [max_reach, 0, l1], 'AbsTol', 1e-7);
         end
     end
 end

@@ -27,7 +27,7 @@ function ui_robot()
     axis(ax, [-0.3 0.3 -0.3 0.3 -0.03 0.3]);
 
     % Plot Handles
-    hLinks = plot3(ax, zeros(1,5), zeros(1,5), zeros(1,5), 'k-', 'LineWidth', 2);
+    hLinks = plot3(ax, zeros(1,5), zeros(1,5), zeros(1,5), '-', 'Color', [0.7, 0.7, 0.7], 'LineWidth', 2);
     hOrigin = plot3(ax, 0, 0, 0, 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
     hJ1 = plot3(ax, 0, 0, 0, 'go', 'MarkerSize', 8, 'MarkerFaceColor', 'g');
     hJ2 = plot3(ax, 0, 0, 0, 'yo', 'MarkerSize', 8, 'MarkerFaceColor', 'y');

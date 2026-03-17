@@ -157,19 +157,19 @@ classdef dobot < handle
 
             x = xyz(1);
             y = xyz(2);
-            z = xyz(3);
+            z_rel = xyz(3) - obj.L1; % Target Z relative to shoulder
             l2 = obj.L2;
             l3 = obj.L3;
 
             r = sqrt(x^2 + y^2);
-            h = sqrt(r^2 + z^2);
+            h = sqrt(r^2 + z_rel^2);
 
             % % Reachability check
             if h > (l2 + l3) + 1e-9
                 error('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, l2 + l3);
             end
             %
-            c3 = (r^2 + z^2 - l2^2 - l3^2) / (2 * l2 * l3);
+            c3 = (r^2 + z_rel^2 - l2^2 - l3^2) / (2 * l2 * l3);
             c3 = max(min(c3, 1), -1);
 
             obj.Theta1 = atan2(y, x);
@@ -181,9 +181,9 @@ classdef dobot < handle
             obj.Theta3 = atan2(s3, c3);
 
             if elbowUp
-                obj.Theta2 = atan2(z,r) + acos(h/(2 * l2));
+                obj.Theta2 = atan2(z_rel,r) + acos(h/(2 * l2));
             else
-                obj.Theta2 = atan2(z,r) - acos(h/(2 * l2));
+                obj.Theta2 = atan2(z_rel,r) - acos(h/(2 * l2));
             end
         end
 
