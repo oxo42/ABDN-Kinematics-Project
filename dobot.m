@@ -178,19 +178,18 @@ classdef dobot < handle
             x = xyz(1);
             y = xyz(2);
             z = xyz(3);
-            L1 = obj.L1;
-            L2 = obj.L2;
+            l1 = obj.L1;
+            l2 = obj.L2;
 
             r = sqrt(x^2 + y^2);
             h = sqrt(r^2 + z^2);
 
             % % Reachability check
-            if h > (L1 + L2) + 1e-9
-                msg = sprintf('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, L1 + L2);
-                error(msg);
+            if h > (l1 + l2) + 1e-9
+                error('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, l1 + l2);
             end
             %
-            c3 = (r^2 + z^2 - L1^2 - L2^2) / (2 * L1 * L2);
+            c3 = (r^2 + z^2 - l1^2 - l2^2) / (2 * l1 * l2);
             c3 = max(min(c3, 1), -1);
 
             obj.Theta1 = atan2(y, x);
@@ -202,9 +201,9 @@ classdef dobot < handle
             obj.Theta3 = atan2(s3, c3);
 
             if elbowUp
-                obj.Theta2 = atan2(z,r) + acos(h/(2 * L1));
+                obj.Theta2 = atan2(z,r) + acos(h/(2 * l1));
             else
-                obj.Theta2 = atan2(z,r) - acos(h/(2 * L1));
+                obj.Theta2 = atan2(z,r) - acos(h/(2 * l1));
             end
         end
 
@@ -267,16 +266,17 @@ classdef dobot < handle
             q1 = obj.Theta1;
             q2 = obj.Theta2;
             q3 = obj.Theta3;
-            q4 = obj.Theta4;
-            L1 = obj.L1;
-            L2 = obj.L2;
+            % Does not affect the location of the end effector. Rotation only
+            % q4 = obj.Theta4;
+            l1 = obj.L1;
+            l2 = obj.L2;
 
-            r = L1*cos(q2) + L2*cos(q2 + q3);
+            r = l1*cos(q2) + l2*cos(q2 + q3);
 
             Ja = [
-                -r*sin(q1),  cos(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*cos(q1),  0;
-                r*cos(q1),   sin(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*sin(q1),  0;
-                0,           L1*cos(q2) + L2*cos(q2 + q3),              L2*cos(q2 + q3),          0;
+                -r*sin(q1),  cos(q1)*(-l1*sin(q2) - l2*sin(q2 + q3)),  -l2*sin(q2 + q3)*cos(q1),  0;
+                r*cos(q1),   sin(q1)*(-l1*sin(q2) - l2*sin(q2 + q3)),  -l2*sin(q2 + q3)*sin(q1),  0;
+                0,           l1*cos(q2) + l2*cos(q2 + q3),              l2*cos(q2 + q3),          0;
                 1,           0,                                          0,                       1
                 ];
         end
@@ -294,12 +294,12 @@ classdef dobot < handle
 
             q2 = obj.Theta2;
             q3 = obj.Theta3;
-            L1 = obj.L1;
-            L2 = obj.L2;
+            l1 = obj.L1;
+            l2 = obj.L2;
 
-            r = L1*cos(q2) + L2*cos(q2 + q3);
+            r = l1*cos(q2) + l2*cos(q2 + q3);
 
-            detJa = L1 * L2 * sin(q3) * r;
+            detJa = l1 * l2 * sin(q3) * r;
         end
 
         function tf = isSingular(obj, tol)
@@ -340,11 +340,11 @@ classdef dobot < handle
             q2 = obj.Theta2;
             q3 = obj.Theta3;
 
-            L1 = obj.L1;
-            L2 = obj.L2;
+            l1 = obj.L1;
+            l2 = obj.L2;
 
             cond1 = abs(sin(q3)) < tol;
-            cond2 = abs(L1*cos(q2) + L2*cos(q2 + q3)) < tol;
+            cond2 = abs(l1*cos(q2) + l2*cos(q2 + q3)) < tol;
         end
     end
 end
