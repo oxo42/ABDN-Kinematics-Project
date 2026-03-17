@@ -2,4 +2,4 @@
 
 Kinematics &amp; Dynamics Online Group 1 Design Project
 
-![Dynamic Joint Positions](forward_kinematics.png)
+![UI showing forward and reverse kinematics](robot_plot.png)
