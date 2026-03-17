@@ -9,6 +9,14 @@ classdef dobot < handle
     %   All distances are in metres
 
     properties
+        % Joint angles (radians)
+        %
+        % Represents the angular position of each joint in radians.
+        % Theta1: Base rotation
+        % Theta2: Shoulder joint
+        % Theta3: Elbow joint
+        % Theta4: Wrist rotation
+
         Theta1
         Theta2
         Theta3
@@ -21,10 +29,10 @@ classdef dobot < handle
         function obj = dobot(theta1, theta2, theta3, theta4)
             %DOBOT Construct an instance of this class
             arguments
-                theta1=0
-                theta2=0
-                theta3=0
-                theta4=0
+                theta1 (1,1) double = 0
+                theta2 (1,1) double = 0
+                theta3 (1,1) double = 0
+                theta4 (1,1) double = 0
             end
             obj.Theta1 = theta1;
             obj.Theta2 = theta2;
@@ -33,8 +41,17 @@ classdef dobot < handle
         end
 
         function E = elbowUp(obj)
+            %ELBOWUP Returns true if the elbow is in the "up" configuration.
+            %   The elbow up configuration is defined as Theta3 < 0.
+            %
+            %   Returns:
+            %       E (logical): True if elbow is up, false otherwise.
+
             E = obj.Theta3 < 0;
         end
+
+
+
 
         function A = jointMatrix(obj, i)
             % Returns the homogenous transformation matrix for a specific
@@ -50,6 +67,8 @@ classdef dobot < handle
                 case 'p'
                     % The passive joint that rotates the end effector
                     % parallel to the ground
+                    % We rotate into the end effector frame here (alpha) after
+                    % we do the parallel to ground roatation
                     A = dh(0, pi/2, 0, - theta2 - theta3);
                 case 4
                     A = dh(0, 0, 0, theta4);
@@ -58,8 +77,17 @@ classdef dobot < handle
             end
         end
 
+
         function T = transformEquation(obj, i, j)
             % returns the transformation matrix in symbolic equation form
+            %
+            % Parameters:
+            %   i (int): Start frame
+            %   j (int): End frame
+            %
+            % Returns:
+            %   T (symbolic matrix): Homogeneous transformation matrix from frame i to frame j
+
             % for joint j from frame i so the end effector would be 0, 4
             T = obj.jointMatrix(i);
             for k = i+1:j
@@ -74,6 +102,16 @@ classdef dobot < handle
         end
 
         function T = transform(obj, i, j)
+            %TRANSFORM Calculates the numerical homogeneous transformation matrix.
+            %   Evaluates the symbolic transformation equation using the current
+            %   joint angles to return a numeric matrix from frame i to frame j.
+            %
+            % Parameters:
+            %   i (int): Start frame index.
+            %   j (int): End frame index.
+            %
+            % Returns:
+            %   T (4x4 double): Numeric homogeneous transformation matrix.
             t = obj.transformEquation(i, j);
             func = matlabFunction(t);
             thetas = [obj.Theta1 obj.Theta2, obj.Theta3, obj.Theta4];
@@ -82,13 +120,23 @@ classdef dobot < handle
         end
 
         function loc = jointLoc(obj, j)
-            % Returns a matrix of XYZ coordinates of joint j in the base
-            % frame
+            %JOINTLOC Returns the XYZ coordinates of joint j in the base frame.
+            %
+            % Parameters:
+            %   j (int): Joint number (1 to 4).
+            %
+            % Returns:
+            %   loc (1x3 double): XYZ coordinates of joint j in the base frame.
+
             T = obj.transform(1,j);
             loc = T(1:3, 4)';
         end
 
         function loc = xyz(obj)
+            %XYZ Returns the XYZ coordinates of the end effector in the base frame.
+            %
+            % Returns:
+            %   loc (1x3 double): XYZ coordinates of the end effector.
             loc = obj.o()';
         end
 
@@ -107,7 +155,19 @@ classdef dobot < handle
         end
 
         function obj = setEndEffector(obj, xyz, elbowUp)
-            % Inverse kinematics
+            %SETENDEFFECTOR Inverse kinematics solver for the Dobot Magician Lite.
+            %   Calculates the joint angles required to position the end effector at the
+            %   specified XYZ coordinates.
+            %
+            % Parameters:
+            %   xyz (1x3 double): Desired XYZ coordinates of the end effector.
+            %   elbowUp (logical, optional):  True for elbow-up configuration (default), false for elbow-down.
+            %
+            % Returns:
+            %   None (modifies the object's joint angles).
+            %
+            % Throws:
+            %   Error if the target is outside the reachable workspace.
             % xyz is a 1x3 matrix
             arguments
                 obj
@@ -149,8 +209,15 @@ classdef dobot < handle
         end
 
         function R = z(obj, i)
-            % Gives the z-rotation segment of the rotation matrix for the
-            % frame
+            %Z Returns the Z-axis of the rotation matrix for frame i in the base frame.
+            %
+            % Parameters:
+            %   i (int): Frame number (0 to 4).
+            %
+            % Returns:
+            %   R (3x1 double): Z-axis of the rotation matrix.
+
+
             if i == 0
                 R = [0 0 1]';
             else
@@ -160,9 +227,17 @@ classdef dobot < handle
         end
 
         function J = jacobian(obj)
-            % Jv = zi-1 X (On - Oi-1)
-            % Jw = Zi-1
-
+            %JACOBIAN Calculates the Geometric Jacobian matrix.
+            %   The Geometric Jacobian relates joint velocities to end-effector linear
+            %   and angular velocities.
+            %   Jv = zi-1 X (On - Oi-1)
+            %   Jw = Zi-1
+            %
+            % Returns:
+            %   J (6x4 double): Geometric Jacobian matrix.
+            %   Rows 1-3: Linear velocity Jacobian
+            %   Rows 4-6: Angular velocity Jacobian
+            %
             jv = @(i) cross(obj.z(i-1), obj.o(4) - obj.o(i-1));
             jw = @(i) obj.z(i-1);
 
@@ -172,12 +247,20 @@ classdef dobot < handle
         end
 
         function Ja = analyticalJacobian(obj)
-            % Analytical Jacobian for the task vector:
-            % [x; y; z; psi]
-            % where psi = theta1 + theta4
+            %ANALYTICALJACOBIAN Calculates the Analytical Jacobian matrix.
+            %   The Analytical Jacobian relates joint velocities to the task vector:
+            %   [x; y; z; psi]
+            %   where psi = theta1 + theta4 (end-effector orientation)
             %
-            % Assumes:
-            % L1 = obj.L1 m
+            % Returns:
+            %   Ja (4x4 double): Analytical Jacobian matrix.
+            %   Row 1: Linear velocity in X
+            %   Row 2: Linear velocity in Y
+            %   Row 3: Linear velocity in Z
+            %   Row 4: Angular velocity around Z (psi)
+            %
+            % Assumptions:
+            %   L1 = obj.L1 m
             % L2 = 0.15 m
             % Lt = 0
 
@@ -199,8 +282,15 @@ classdef dobot < handle
         end
 
         function detJa = singularityDet(obj)
-            % Determinant of the analytical Jacobian
-            % Singular when detJa = 0
+            %SINGULARITYDET Calculates the determinant of the Analytical Jacobian.
+            %   The determinant is used to detect singularities in the robot's
+            %   configuration.  The robot is singular when detJa = 0.
+            %
+            % Returns:
+            %   detJa (double): Determinant of the Analytical Jacobian matrix.
+            %
+            % See also:
+            %   isSingular
 
             q2 = obj.Theta2;
             q3 = obj.Theta3;
@@ -213,7 +303,14 @@ classdef dobot < handle
         end
 
         function tf = isSingular(obj, tol)
-            % Returns true if robot is in a singular configuration
+            %ISSINGULAR Determines if the robot is in a singular configuration.
+            %   A singular configuration occurs when the determinant of the Jacobian is
+            %   close to zero.
+            %
+            % Returns:
+            %   tf (logical): True if the robot is in a singular configuration, false otherwise.
+            %
+
             arguments
                 obj
                 tol = 1e-6
@@ -223,9 +320,17 @@ classdef dobot < handle
         end
 
         function [cond1, cond2] = singularityConditions(obj, tol)
-            % Returns the two singularity conditions separately
-            % cond1: sin(theta3) = 0
-            % cond2: L1*cos(theta2) + L2*cos(theta2+theta3) = 0
+            %SINGULARITYCONDITIONS Returns the two singularity conditions separately.
+            %   These conditions can be used to analyze the robot's singularities in more detail.
+            %
+            % Returns:
+            %   cond1 (logical): True if sin(theta3) is close to zero.
+            %   cond2 (logical): True if L1*cos(theta2) + L2*cos(theta2+theta3) is close to zero.
+            %
+            % Details:
+            %   cond1: sin(theta3) = 0
+            %   cond2: L1*cos(theta2) + L2*cos(theta2+theta3) = 0
+
 
             arguments
                 obj
