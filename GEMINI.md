@@ -41,6 +41,30 @@ matlab -nodisplay -r "filename; exit"
 - `dobot_tests.m`: `matlab.unittest.TestCase` class verifying the accuracy of the IK/FK solvers and singularity conditions.
 - `dobot_play.m`: A sandbox script for running manual experiments and viewing symbolic/numerical outputs.
 
+## Dobot Class Reference
+
+The `dobot` class is the core of the project, providing the following properties and methods:
+
+### Properties
+- `Theta1`, `Theta2`, `Theta3`, `Theta4`: Joint angles in radians.
+- `L2`, `L3`: Link lengths (default: 0.15m each).
+
+### Key Methods
+- `dobot(theta1, theta2, theta3, theta4)`: Constructor for initializing joint angles.
+- `elbowUp()`: Returns `true` if the robot is in an elbow-up configuration ($\theta_3 < 0$).
+- `setEndEffector(xyz, elbowUp)`: Inverse kinematics solver that sets joint angles for a target $(x, y, z)$ position and branch selection.
+- `xyz()` / `o(n)`: Returns the Cartesian coordinates of the end effector or a specific joint.
+- `transform(i, j)`: Calculates the homogeneous transformation matrix from frame $i$ to frame $j$.
+- `jacobian()`: Computes the 6x4 Geometric Jacobian.
+- `analyticalJacobian()`: Computes the 4x4 Analytical Jacobian for $[x, y, z, \psi]^T$.
+- `singularityDet()`: Returns the determinant of the Analytical Jacobian for singularity analysis.
+- `isSingular(tol)`: Checks if the current configuration is near a singularity.
+- `singularityConditions(tol)`: Returns boolean flags for specific singularity conditions ($sin(\theta_3) \approx 0$ or reach limits).
+
+### Kinematic Details
+- Uses **Standard DH Parameters** via an internal `dh` helper function.
+- Includes a **Passive Joint** (frame 'p') between joint 3 and 4 to maintain the end effector parallel to the ground, reflecting the physical robot's parallel linkage.
+
 ## Development Conventions
 
 - **Units:**

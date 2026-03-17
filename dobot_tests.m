@@ -51,7 +51,7 @@ classdef dobot_tests < matlab.unittest.TestCase
         end
 
         function testElbowUp(testCase)
-            % verify that when we put the joins in an elbow up position the parameter reflects that
+            % verify that when we put the joints in an elbow up position the parameter reflects that
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
@@ -61,7 +61,7 @@ classdef dobot_tests < matlab.unittest.TestCase
         end
 
         function testElbowDown(testCase)
-            % verify that when we put the joins in an elbow down position the parameter reflects that
+            % verify that when we put the joints in an elbow down position the parameter reflects that
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
@@ -73,6 +73,48 @@ classdef dobot_tests < matlab.unittest.TestCase
             r = dobot();
             call = @() r.setEndEffector([0.4 0 0]);
             testCase.verifyError(call, '');
+        end
+
+        function testSingularity(testCase)
+            % Test fully extended configuration (theta3 = 0)
+            d = dobot(0, 0, 0, 0);
+            testCase.assertTrue(d.isSingular(), 'Should be singular when fully extended');
+            
+            % Test workspace boundary singularity (r = 0)
+            d = dobot(0, pi/2, 0, 0);
+            testCase.assertTrue(d.isSingular(), 'Should be singular when r=0');
+        end
+
+        function testJacobianConsistency(testCase)
+            % Compare geometric and analytical Jacobians for linear velocity
+            d = dobot(deg2rad(10), deg2rad(20), deg2rad(-30), 0);
+            J_geo = d.jacobian();
+            J_ana = d.analyticalJacobian();
+            
+            % Linear velocity parts (first 3 rows) should match
+            testCase.verifyEqual(J_geo(1:3, :), J_ana(1:3, :), 'AbsTol', 1e-8);
+        end
+
+        function testPassiveJointOrientation(testCase)
+            % The passive joint ensures the end effector orientation relative to the 
+            % base depends only on Theta1 and Theta4, not the linkage configuration.
+            d1 = dobot(deg2rad(10), deg2rad(10), deg2rad(-10), deg2rad(5));
+            d2 = dobot(deg2rad(10), deg2rad(30), deg2rad(-40), deg2rad(5));
+            
+            T1 = d1.transform(1, 4);
+            T2 = d2.transform(1, 4);
+            
+            % Rotation matrices should be identical despite different shoulder/elbow angles
+            testCase.verifyEqual(T1(1:3, 1:3), T2(1:3, 1:3), 'AbsTol', 1e-8);
+        end
+
+        function testBoundaryReachability(testCase)
+            d = dobot();
+            max_reach = d.L2 + d.L3;
+            
+            % Test exactly at the limit - should not throw error
+            d.setEndEffector([max_reach, 0, 0]);
+            testCase.verifyEqual(d.xyz(), [max_reach, 0, 0], 'AbsTol', 1e-7);
         end
     end
 end
