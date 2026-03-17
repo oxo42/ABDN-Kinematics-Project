@@ -150,12 +150,13 @@ function ui_robot()
     function updateRobotPlot()
         % Get joint locations
         p0 = [0, 0, 0];
+        p1 = d.jointLoc(1);
         p2 = d.jointLoc(2);
         p3 = d.jointLoc(3);
         p4 = d.jointLoc(4);
         
         % Update plot lines
-        pts = [p0; p2; p3; p4];
+        pts = [p0; p1; p2; p3; p4];
         hRobot.XData = pts(:,1);
         hRobot.YData = pts(:,2);
         hRobot.ZData = pts(:,3);

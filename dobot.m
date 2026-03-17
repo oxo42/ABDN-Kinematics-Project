@@ -21,6 +21,7 @@ classdef dobot < handle
         Theta2
         Theta3
         Theta4
+        L1 = 0.107
         L2 = 0.15 % Link between joints 2 and 3
         L3 = 0.15 % Link between joints 3 and 4
     end
@@ -55,11 +56,11 @@ classdef dobot < handle
             % joint
             switch i
                 case 1
-                    A = dh(0, pi/2, 0, obj.Theta1);
+                    A = dh(0, pi/2, obj.L1, obj.Theta1);
                 case 2
-                    A = dh(0.15, 0, 0, obj.Theta2);
+                    A = dh(obj.L2, 0, 0, obj.Theta2);
                 case 3
-                    A = dh(0.15, 0, 0, obj.Theta3);
+                    A = dh(obj.L3, 0, 0, obj.Theta3);
                 case 'p'
                     % The passive joint that rotates the end effector
                     % parallel to the ground
