@@ -50,45 +50,42 @@ classdef dobot < handle
             E = obj.Theta3 < 0;
         end
 
-
-
-
         function A = jointMatrix(obj, i)
             % Returns the homogenous transformation matrix for a specific
             % joint
-            syms theta1 theta2 theta3 theta4
             switch i
                 case 1
-                    A = dh(0, pi/2, 0, theta1);
+                    A = dh(0, pi/2, 0, obj.Theta1);
                 case 2
-                    A = dh(0.15, 0, 0, theta2);
+                    A = dh(0.15, 0, 0, obj.Theta2);
                 case 3
-                    A = dh(0.15, 0, 0, theta3);
+                    A = dh(0.15, 0, 0, obj.Theta3);
                 case 'p'
                     % The passive joint that rotates the end effector
                     % parallel to the ground
                     % We rotate into the end effector frame here (alpha) after
                     % we do the parallel to ground roatation
-                    A = dh(0, pi/2, 0, - theta2 - theta3);
+                    A = dh(0, pi/2, 0, - obj.Theta2 - obj.Theta3);
                 case 4
-                    A = dh(0, 0, 0, theta4);
+                    A = dh(0, 0, 0, obj.Theta4);
                 otherwise
                     error("unknown joint")
             end
         end
 
 
-        function T = transformEquation(obj, i, j)
-            % returns the transformation matrix in symbolic equation form
+        function T = transform(obj, i, j)
+            %TRANSFORM Calculates the numerical homogeneous transformation matrix.
+            %   Evaluates the homogenous transformation matrices to return a
+            %   tranformation matrix frame i to frame j.
             %
             % Parameters:
-            %   i (int): Start frame
-            %   j (int): End frame
+            %   i (int): Start frame index.
+            %   j (int): End frame index.
             %
             % Returns:
-            %   T (symbolic matrix): Homogeneous transformation matrix from frame i to frame j
+            %   T (4x4 double): Numeric homogeneous transformation matrix.
 
-            % for joint j from frame i so the end effector would be 0, 4
             T = obj.jointMatrix(i);
             for k = i+1:j
                 if k == 4
@@ -99,24 +96,6 @@ classdef dobot < handle
                 end
                 T = T * obj.jointMatrix(k);
             end
-        end
-
-        function T = transform(obj, i, j)
-            %TRANSFORM Calculates the numerical homogeneous transformation matrix.
-            %   Evaluates the symbolic transformation equation using the current
-            %   joint angles to return a numeric matrix from frame i to frame j.
-            %
-            % Parameters:
-            %   i (int): Start frame index.
-            %   j (int): End frame index.
-            %
-            % Returns:
-            %   T (4x4 double): Numeric homogeneous transformation matrix.
-            t = obj.transformEquation(i, j);
-            func = matlabFunction(t);
-            thetas = [obj.Theta1 obj.Theta2, obj.Theta3, obj.Theta4];
-            args = num2cell(thetas(1:j));
-            T = func(args{:});
         end
 
         function loc = jointLoc(obj, j)
