@@ -27,8 +27,13 @@ function ui_robot()
     axis(ax, [-0.3 0.3 -0.3 0.3 -0.03 0.3]);
 
     % Plot Handles
-    hRobot = plot3(ax, [0 0 0 0], [0 0 0 0], [0 0 0 0], 'm-o', ...
-        'LineWidth', 3, 'MarkerSize', 8, 'MarkerFaceColor', 'k');
+    hLinks = plot3(ax, zeros(1,5), zeros(1,5), zeros(1,5), 'k-', 'LineWidth', 2);
+    hOrigin = plot3(ax, 0, 0, 0, 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
+    hJ1 = plot3(ax, 0, 0, 0, 'go', 'MarkerSize', 8, 'MarkerFaceColor', 'g');
+    hJ2 = plot3(ax, 0, 0, 0, 'yo', 'MarkerSize', 8, 'MarkerFaceColor', 'y');
+    hJ3 = plot3(ax, 0, 0, 0, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
+    hJ4 = plot3(ax, 0, 0, 0, 'co', 'MarkerSize', 8, 'MarkerFaceColor', 'c');
+    legend(ax, {'Links', 'Base', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effector'}, 'Location', 'northeastoutside');
 
     % --- Right: Controls ---
     controlPanel = uipanel(mainLayout, 'Title', 'Controls');
@@ -155,11 +160,18 @@ function ui_robot()
         p3 = d.jointLoc(3);
         p4 = d.jointLoc(4);
         
-        % Update plot lines
+        % Update link lines
         pts = [p0; p1; p2; p3; p4];
-        hRobot.XData = pts(:,1);
-        hRobot.YData = pts(:,2);
-        hRobot.ZData = pts(:,3);
+        hLinks.XData = pts(:,1);
+        hLinks.YData = pts(:,2);
+        hLinks.ZData = pts(:,3);
+
+        % Update individual joint markers
+        hOrigin.XData = p0(1); hOrigin.YData = p0(2); hOrigin.ZData = p0(3);
+        hJ1.XData = p1(1); hJ1.YData = p1(2); hJ1.ZData = p1(3);
+        hJ2.XData = p2(1); hJ2.YData = p2(2); hJ2.ZData = p2(3);
+        hJ3.XData = p3(1); hJ3.YData = p3(2); hJ3.ZData = p3(3);
+        hJ4.XData = p4(1); hJ4.YData = p4(2); hJ4.ZData = p4(3);
         
         % Update T04 Display
         T04 = d.transform(1,4);
