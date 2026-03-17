@@ -21,8 +21,8 @@ classdef dobot < handle
         Theta2
         Theta3
         Theta4
-        L1 = 0.15 % Link between joints 2 and 3
-        L2 = 0.15 % Link between joints 3 and 4
+        L2 = 0.15 % Link between joints 2 and 3
+        L3 = 0.15 % Link between joints 3 and 4
     end
 
     methods
@@ -178,18 +178,18 @@ classdef dobot < handle
             x = xyz(1);
             y = xyz(2);
             z = xyz(3);
-            l1 = obj.L1;
             l2 = obj.L2;
+            l3 = obj.L3;
 
             r = sqrt(x^2 + y^2);
             h = sqrt(r^2 + z^2);
 
             % % Reachability check
-            if h > (l1 + l2) + 1e-9
-                error('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, l1 + l2);
+            if h > (l2 + l3) + 1e-9
+                error('Target is outside reachable workspace. h = %.4f m > %.4f m.', h, l2 + l3);
             end
             %
-            c3 = (r^2 + z^2 - l1^2 - l2^2) / (2 * l1 * l2);
+            c3 = (r^2 + z^2 - l2^2 - l3^2) / (2 * l2 * l3);
             c3 = max(min(c3, 1), -1);
 
             obj.Theta1 = atan2(y, x);
@@ -201,9 +201,9 @@ classdef dobot < handle
             obj.Theta3 = atan2(s3, c3);
 
             if elbowUp
-                obj.Theta2 = atan2(z,r) + acos(h/(2 * l1));
+                obj.Theta2 = atan2(z,r) + acos(h/(2 * l2));
             else
-                obj.Theta2 = atan2(z,r) - acos(h/(2 * l1));
+                obj.Theta2 = atan2(z,r) - acos(h/(2 * l2));
             end
         end
 
@@ -259,8 +259,8 @@ classdef dobot < handle
             %   Row 4: Angular velocity around Z (psi)
             %
             % Assumptions:
-            %   L1 = obj.L1 m
-            % L2 = 0.15 m
+            %   L2 = obj.L2 m
+            % L3 = 0.15 m
             % Lt = 0
 
             q1 = obj.Theta1;
@@ -268,15 +268,15 @@ classdef dobot < handle
             q3 = obj.Theta3;
             % Does not affect the location of the end effector. Rotation only
             % q4 = obj.Theta4;
-            l1 = obj.L1;
             l2 = obj.L2;
+            l3 = obj.L3;
 
-            r = l1*cos(q2) + l2*cos(q2 + q3);
+            r = l2*cos(q2) + l3*cos(q2 + q3);
 
             Ja = [
-                -r*sin(q1),  cos(q1)*(-l1*sin(q2) - l2*sin(q2 + q3)),  -l2*sin(q2 + q3)*cos(q1),  0;
-                r*cos(q1),   sin(q1)*(-l1*sin(q2) - l2*sin(q2 + q3)),  -l2*sin(q2 + q3)*sin(q1),  0;
-                0,           l1*cos(q2) + l2*cos(q2 + q3),              l2*cos(q2 + q3),          0;
+                -r*sin(q1),  cos(q1)*(-l2*sin(q2) - l3*sin(q2 + q3)),  -l3*sin(q2 + q3)*cos(q1),  0;
+                r*cos(q1),   sin(q1)*(-l2*sin(q2) - l3*sin(q2 + q3)),  -l3*sin(q2 + q3)*sin(q1),  0;
+                0,           l2*cos(q2) + l3*cos(q2 + q3),              l3*cos(q2 + q3),          0;
                 1,           0,                                          0,                       1
                 ];
         end
@@ -294,12 +294,12 @@ classdef dobot < handle
 
             q2 = obj.Theta2;
             q3 = obj.Theta3;
-            l1 = obj.L1;
             l2 = obj.L2;
+            l3 = obj.L3;
 
-            r = l1*cos(q2) + l2*cos(q2 + q3);
+            r = l2*cos(q2) + l3*cos(q2 + q3);
 
-            detJa = l1 * l2 * sin(q3) * r;
+            detJa = l2 * l3 * sin(q3) * r;
         end
 
         function tf = isSingular(obj, tol)
@@ -325,11 +325,11 @@ classdef dobot < handle
             %
             % Returns:
             %   cond1 (logical): True if sin(theta3) is close to zero.
-            %   cond2 (logical): True if L1*cos(theta2) + L2*cos(theta2+theta3) is close to zero.
+            %   cond2 (logical): True if L2*cos(theta2) + L3*cos(theta2+theta3) is close to zero.
             %
             % Details:
             %   cond1: sin(theta3) = 0
-            %   cond2: L1*cos(theta2) + L2*cos(theta2+theta3) = 0
+            %   cond2: L2*cos(theta2) + L3*cos(theta2+theta3) = 0
 
 
             arguments
@@ -340,11 +340,11 @@ classdef dobot < handle
             q2 = obj.Theta2;
             q3 = obj.Theta3;
 
-            l1 = obj.L1;
             l2 = obj.L2;
+            l3 = obj.L3;
 
             cond1 = abs(sin(q3)) < tol;
-            cond2 = abs(l1*cos(q2) + l2*cos(q2 + q3)) < tol;
+            cond2 = abs(l2*cos(q2) + l3*cos(q2 + q3)) < tol;
         end
     end
 end
