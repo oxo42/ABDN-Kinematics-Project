@@ -50,9 +50,9 @@ classdef dobot < handle
                 case 'p'
                     % The passive joint that rotates the end effector
                     % parallel to the ground
-                    A = dh(0, pi/2, 0, - theta2 - theta3); 
+                    A = dh(0, pi/2, 0, - theta2 - theta3);
                 case 4
-                    A = dh(0, 0, 0, theta4); 
+                    A = dh(0, 0, 0, theta4);
                 otherwise
                     error("unknown joint")
             end
@@ -95,7 +95,7 @@ classdef dobot < handle
         function loc = o(obj, n)
             %o returns the xyz coordinates as a 3x1
             arguments
-                obj 
+                obj
                 n=4 % The joint number
             end
             if n == 0
@@ -105,7 +105,7 @@ classdef dobot < handle
                 loc = T(1:3, 4);
             end
         end
-        
+
         function obj = setEndEffector(obj, xyz, elbowUp)
             % Inverse kinematics
             % xyz is a 1x3 matrix
@@ -142,9 +142,9 @@ classdef dobot < handle
             obj.Theta3 = atan2(s3, c3);
 
             if elbowUp
-                obj.Theta2 = atan2(z,r) + acos(h/(L1 + L2));
+                obj.Theta2 = atan2(z,r) + acos(h/(2 * L1));
             else
-                obj.Theta2 = atan2(z,r) - acos(h/(L1 + L2));
+                obj.Theta2 = atan2(z,r) - acos(h/(2 * L1));
             end
         end
 
@@ -153,7 +153,7 @@ classdef dobot < handle
             % frame
             if i == 0
                 R = [0 0 1]';
-            else    
+            else
                 R = obj.transform(1, i);
                 R = R(1:3, 3);
             end
@@ -184,18 +184,18 @@ classdef dobot < handle
             q1 = obj.Theta1;
             q2 = obj.Theta2;
             q3 = obj.Theta3;
-            q4 = obj.Theta4; 
+            q4 = obj.Theta4;
             L1 = obj.L1;
             L2 = obj.L2;
 
             r = L1*cos(q2) + L2*cos(q2 + q3);
 
-            Ja = [ 
+            Ja = [
                 -r*sin(q1),  cos(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*cos(q1),  0;
                 r*cos(q1),   sin(q1)*(-L1*sin(q2) - L2*sin(q2 + q3)),  -L2*sin(q2 + q3)*sin(q1),  0;
                 0,           L1*cos(q2) + L2*cos(q2 + q3),              L2*cos(q2 + q3),          0;
                 1,           0,                                          0,                       1
-                 ];
+                ];
         end
 
         function detJa = singularityDet(obj)
@@ -262,10 +262,10 @@ arguments (Output)
     matrix
 end
 
-    matrix = [
-        cos(theta)  -1*sin(theta)*cos(alpha)    sin(theta)*sin(alpha)       a*cos(theta) ;
-        sin(theta)  cos(theta)*cos(alpha)       -1*cos(theta)*sin(alpha)    a*sin(theta) ; 
-        0           sin(alpha)                  cos(alpha)                  d            ;
-        0           0                           0                           1       
-            ];
+matrix = [
+    cos(theta)  -1*sin(theta)*cos(alpha)    sin(theta)*sin(alpha)       a*cos(theta) ;
+    sin(theta)  cos(theta)*cos(alpha)       -1*cos(theta)*sin(alpha)    a*sin(theta) ;
+    0           sin(alpha)                  cos(alpha)                  d            ;
+    0           0                           0                           1
+    ];
 end
