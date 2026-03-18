@@ -24,6 +24,12 @@ classdef dobot < handle
         L1 = 0.107 % Link from base to joint 1
         L2 = 0.15 % Link between joints 1 and 2
         L3 = 0.15 % Link between joints 2 and 3
+         JointLimits = [
+        -2.3562   2.3562;   % theta1  (-135° 135°)
+        -0.0873   1.3963;   % theta2  (-5° 80°)
+        -0.1745   1.4835;   % theta3  (-10° 85°)
+        -2.5307   2.5307    % theta4  (-145° 145°)
+        ];
     end
 
     methods
@@ -50,6 +56,31 @@ classdef dobot < handle
 
             E = obj.Theta3 < 0;
         end
+
+        function validateJointLimits(obj, thetas)
+            if nargin < 2
+                thetas = [obj.Theta1 obj.Theta2 obj.Theta3 obj.Theta4];
+            end
+
+            lim = obj.JointLimits;
+            for k = 1:4
+                if thetas(k) < lim(k,1) || thetas(k) > lim(k,2)
+                    error(['Joint %d angle is outside allowed limits.\n\n' ...
+                        'Value: %.2f deg\nAllowed: [%.2f deg , %.2f deg]'], ...
+                         k, rad2deg(thetas(k)), ...
+                        rad2deg(lim(k,1)), rad2deg(lim(k,2)));
+                end
+            end
+        end
+
+        function setJointAngles(obj, thetas)
+            obj.validateJointLimits(thetas);
+            obj.Theta1 = thetas(1);
+            obj.Theta2 = thetas(2);
+            obj.Theta3 = thetas(3);
+            obj.Theta4 = thetas(4);
+        end
+
 
         function A = jointMatrix(obj, i)
             % Returns the homogenous transformation matrix for a specific
