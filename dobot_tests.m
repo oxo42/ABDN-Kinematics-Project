@@ -8,18 +8,18 @@ classdef dobot_tests < matlab.unittest.TestCase
 
     methods (Test)
         function testConstructor(testCase)
-            d = dobot(1, 2, 3, 4);
-            testCase.verifyEqual(d.Theta1, 1);
-            testCase.verifyEqual(d.Theta2, 2);
-            testCase.verifyEqual(d.Theta3, 3);
-            testCase.verifyEqual(d.Theta4, 4);
+            d = dobot(0.1, 0.2, 0.3, 0.4);
+            testCase.verifyEqual(d.Theta1, 0.1);
+            testCase.verifyEqual(d.Theta2, 0.2);
+            testCase.verifyEqual(d.Theta3, 0.3);
+            testCase.verifyEqual(d.Theta4, 0.4);
         end
 
         function testInverseKinematics(testCase)
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(-30);
+            a.Theta3 = deg2rad(-5);
 
             b = dobot();
             b.setEndEffector(a.xyz());
@@ -55,7 +55,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(-30);
+            a.Theta3 = deg2rad(-5);
             testCase.assertTrue(a.elbowUp)
 
         end
@@ -80,15 +80,11 @@ classdef dobot_tests < matlab.unittest.TestCase
             % Test fully extended configuration (theta3 = 0)
             d = dobot(0, 0, 0, 0);
             testCase.assertTrue(d.isSingular(), 'Should be singular when fully extended');
-            
-            % Test workspace boundary singularity (r = 0)
-            d = dobot(0, pi/2, 0, 0);
-            testCase.assertTrue(d.isSingular(), 'Should be singular when r=0');
         end
 
         function testJacobianConsistency(testCase)
             % Compare geometric and analytical Jacobians for linear velocity
-            d = dobot(deg2rad(10), deg2rad(20), deg2rad(-30), 0);
+            d = dobot(deg2rad(10), deg2rad(20), deg2rad(-5), 0);
             J_geo = d.jacobian();
             J_ana = d.analyticalJacobian();
             
@@ -100,7 +96,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             % The passive joint ensures the end effector orientation relative to the 
             % base depends only on Theta1 and Theta4, not the linkage configuration.
             d1 = dobot(deg2rad(10), deg2rad(10), deg2rad(-10), deg2rad(5));
-            d2 = dobot(deg2rad(10), deg2rad(30), deg2rad(-40), deg2rad(5));
+            d2 = dobot(deg2rad(10), deg2rad(30), deg2rad(5), deg2rad(5));
             
             T1 = d1.transform(1, 4);
             T2 = d2.transform(1, 4);
@@ -120,6 +116,45 @@ classdef dobot_tests < matlab.unittest.TestCase
             % At max horizontal reach, z should be l1
             d.setEndEffector([max_reach, 0, l1]);
             testCase.verifyEqual(d.xyz(), [max_reach, 0, l1], 'AbsTol', 1e-7);
+        end
+
+        function testJointLimitsValid(testCase)
+            d = dobot();
+            % Test valid joints
+            thetas = [0.5, 0.5, 0.5, 0.5];
+            d.setJointAngles(thetas);
+            testCase.verifyEqual([d.Theta1, d.Theta2, d.Theta3, d.Theta4], thetas);
+        end
+
+        function testJointLimitsInvalid(testCase)
+            d = dobot();
+            % Test limits for each joint
+            limits = d.JointLimits;
+
+            % Joint 1 too low
+            call = @() d.setJointAngles([limits(1,1)-0.1, 0, 0, 0]);
+            testCase.verifyError(call, '');
+
+            % Joint 2 too high
+            call = @() d.setJointAngles([0, limits(2,2)+0.1, 0, 0]);
+            testCase.verifyError(call, '');
+
+            % Joint 3 too low
+            call = @() d.setJointAngles([0, 0, limits(3,1)-0.1, 0]);
+            testCase.verifyError(call, '');
+
+            % Joint 4 too high
+            call = @() d.setJointAngles([0, 0, 0, limits(4,2)+0.1]);
+            testCase.verifyError(call, '');
+        end
+
+        function testIKJointLimits(testCase)
+            d = dobot();
+            % A point that might be reachable but violates joint limits
+            % Target far behind the robot (Joint 1 limit is 135 deg)
+            target = [-0.2, 0, 0.1]; % Behind base
+            call = @() d.setEndEffector(target);
+            testCase.verifyError(call, '');
         end
     end
 end

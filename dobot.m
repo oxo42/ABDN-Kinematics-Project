@@ -24,12 +24,12 @@ classdef dobot < handle
         L1 = 0.107 % Link from base to joint 1
         L2 = 0.15 % Link between joints 1 and 2
         L3 = 0.15 % Link between joints 2 and 3
-         JointLimits = [
-        -2.3562   2.3562;   % theta1  (-135° 135°)
-        -0.0873   1.3963;   % theta2  (-5° 80°)
-        -0.1745   1.4835;   % theta3  (-10° 85°)
-        -2.5307   2.5307    % theta4  (-145° 145°)
-        ];
+        JointLimits = [
+            deg2rad(-135), deg2rad(135); % theta1
+            deg2rad(-5),   deg2rad(80);  % theta2
+            deg2rad(-10),  deg2rad(85);  % theta3
+            deg2rad(-145), deg2rad(145) % theta4
+            ];
     end
 
     methods
@@ -67,7 +67,7 @@ classdef dobot < handle
                 if thetas(k) < lim(k,1) || thetas(k) > lim(k,2)
                     error(['Joint %d angle is outside allowed limits.\n\n' ...
                         'Value: %.2f deg\nAllowed: [%.2f deg , %.2f deg]'], ...
-                         k, rad2deg(thetas(k)), ...
+                        k, rad2deg(thetas(k)), ...
                         rad2deg(lim(k,1)), rad2deg(lim(k,2)));
                 end
             end
@@ -216,6 +216,9 @@ classdef dobot < handle
             else
                 obj.Theta2 = atan2(z_rel,r) - acos(h/(2 * l2));
             end
+
+            % Check limits before finalizing
+            obj.validateJointLimits();
         end
 
         function R = z(obj, i)
