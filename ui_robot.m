@@ -8,7 +8,7 @@ function ui_robot()
 %   - IK target input
 
 % Initialize robot object
-d = dobot(0, deg2rad(30), deg2rad(-20), 0);
+d = dobot(0, deg2rad(30), deg2rad(-5), 0);
 
 % ---------- UI Setup ----------
 fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1200 700], ...
@@ -144,6 +144,7 @@ updateRobotPlot();
 
         try
             d.setJointAngles(thetas);
+            syncUI(); % Keep IK fields in sync with manual joint movement
             updateRobotPlot();
         catch ME
             uialert(fig, ME.message, 'Joint Limit Error')
@@ -152,10 +153,24 @@ updateRobotPlot();
     end
 
     function syncUI()
+        % Sync joint angle fields
         thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
         for j = 1:4
             radFields{j}.Value = thetas(j);
             degFields{j}.Value = rad2deg(thetas(j));
+        end
+
+        % Sync IK target fields
+        pos = d.xyz();
+        xIn.Value = floor(pos(1) * 10000) / 10000; % Round to 4 decimal places;
+        yIn.Value = floor(pos(2) * 10000) / 10000;
+        zIn.Value = floor(pos(3) * 10000) / 10000;
+
+        % Sync elbow mode dropdown
+        if d.elbowUp()
+            elbowMode.Value = 'up';
+        else
+            elbowMode.Value = 'down';
         end
     end
 
