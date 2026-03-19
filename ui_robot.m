@@ -11,10 +11,10 @@ function ui_robot()
 d = dobot(0, deg2rad(30), deg2rad(-5), 0);
 
 % ---------- UI Setup ----------
-fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1200 700], ...
+fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1500 700], ...
     'WindowKeyPressFcn', @(src, event) onWindowKeyPress(event));
 mainLayout = uigridlayout(fig, [1 2]);
-mainLayout.ColumnWidth = {'2.5x', '1x'};
+mainLayout.ColumnWidth = {'1.7x', '1x'};
 
 % --- Left: 3D Plot ---
 plotPanel = uipanel(mainLayout, 'Title', '3D Plot of Robot');
@@ -39,7 +39,7 @@ legend(ax, {'Links', 'World Origin', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effec
 controlPanel = uipanel(mainLayout, 'Title', 'Controls');
 cg = uigridlayout(controlPanel, [15 5]);
 cg.RowHeight = {24, 24, 24, 24, 24, 24, 10, 24, 24, 24, 24, 24, 10, 24, '1x'};
-cg.ColumnWidth = {40, '1x', '1x', 40, '1x'};
+cg.ColumnWidth = {40, '1x', '1x', 40, '2x'};
 
 % Joint Angles & Dynamics Section
 addHeader(cg, 'Joint Angles', 1, [1 3]);
@@ -189,9 +189,9 @@ updateRobotPlot();
 
         % Sync IK target fields
         pos = d.xyz();
-        xIn.Value = floor(pos(1) * 10000) / 10000; % Round to 4 decimal places;
-        yIn.Value = floor(pos(2) * 10000) / 10000;
-        zIn.Value = floor(pos(3) * 10000) / 10000;
+        xIn.Value = floor(pos(1) * 10000000) / 10000000;
+        yIn.Value = floor(pos(2) * 10000000) / 10000000;
+        zIn.Value = floor(pos(3) * 10000000) / 10000000;
 
         % Sync elbow mode dropdown
         if d.elbowUp()
@@ -224,9 +224,7 @@ updateRobotPlot();
 
         % Update T04 Display
         T04 = d.transform(1,4);
-        tStr = sprintf('T04 Matrix:\n%s\n\nPosition [X Y Z]:\n[%.4f, %.4f, %.4f]', ...
-            formattedDisplayText(T04), p4(1), p4(2), p4(3));
-        t04Display.Value = tStr;
+        t04Display.Value = formattedDisplayText(T04);
 
         % Update Jacobian Display
         J = d.jacobian();
