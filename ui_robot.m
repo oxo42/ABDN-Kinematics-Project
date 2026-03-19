@@ -8,13 +8,13 @@ function ui_robot()
 %   - IK target input
 
 % Initialize robot object
-d = dobot(0, deg2rad(30), deg2rad(-20), 0);
+d = dobot(0, deg2rad(30), deg2rad(-5), 0);
 
 % ---------- UI Setup ----------
-fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1200 700], ...
+fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1500 700], ...
     'WindowKeyPressFcn', @(src, event) onWindowKeyPress(event));
 mainLayout = uigridlayout(fig, [1 2]);
-mainLayout.ColumnWidth = {'2.5x', '1x'};
+mainLayout.ColumnWidth = {'1.7x', '1x'};
 
 % --- Left: 3D Plot ---
 plotPanel = uipanel(mainLayout, 'Title', '3D Plot of Robot');
@@ -37,12 +37,14 @@ legend(ax, {'Links', 'World Origin', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effec
 
 % --- Right: Controls ---
 controlPanel = uipanel(mainLayout, 'Title', 'Controls');
-cg = uigridlayout(controlPanel, [22 3]);
-cg.RowHeight = repmat({24}, 1, 22);
-cg.ColumnWidth = {80, '1x', '1x'};
+cg = uigridlayout(controlPanel, [15 5]);
+cg.RowHeight = {24, 24, 24, 24, 24, 24, 10, 24, 24, 24, 24, 24, 10, 24, '1x'};
+cg.ColumnWidth = {40, '1x', '1x', 40, '2x'};
 
-% Joint Angles Section
-addHeader(cg, 'Joint Angles', 1);
+% Joint Angles & Dynamics Section
+addHeader(cg, 'Joint Angles', 1, [1 3]);
+addHeader(cg, 'Dynamics', 1, [4 5]);
+
 lblRad = uilabel(cg, 'Text', 'Radians', 'HorizontalAlignment', 'center');
 lblRad.Layout.Row = 2; lblRad.Layout.Column = 2;
 lblDeg = uilabel(cg, 'Text', 'Degrees', 'HorizontalAlignment', 'center');
@@ -53,7 +55,7 @@ lblDeg.Layout.Row = 2; lblDeg.Layout.Column = 3;
 for i = 1:4
     row = 2 + i;
     lblTheta = uilabel(cg, 'Text', sprintf('\\theta_%d', i), 'Interpreter', 'latex', 'HorizontalAlignment', 'right');
-    lblTheta.Layout.Row = row;
+    lblTheta.Layout.Row = row; lblTheta.Layout.Column = 1;
 
     radFields{i} = uieditfield(cg, 'numeric', 'Value', 0, 'ValueChangedFcn', @(src, event) updateFromRad(i));
     radFields{i}.Layout.Row = row; radFields{i}.Layout.Column = 2;
@@ -63,33 +65,58 @@ for i = 1:4
     degFields{i}.Layout.Row = row; degFields{i}.Layout.Column = 3;
 end
 
+% Dynamics fields
+mFields = cell(1,3);
+for i = 1:3
+    row = 2 + i;
+    lblM = uilabel(cg, 'Text', sprintf('M%d', i), 'HorizontalAlignment', 'right');
+    lblM.Layout.Row = row; lblM.Layout.Column = 4;
+    mFields{i} = uieditfield(cg, 'numeric', 'Value', 0);
+    mFields{i}.Layout.Row = row; mFields{i}.Layout.Column = 5;
+end
+
 % IK Target Section
-addHeader(cg, 'Inverse Kinematics Target', 8);
-lblX = uilabel(cg, 'Text', 'X (m)', 'HorizontalAlignment', 'right');
-lblX.Layout.Row = 9;
-xIn = uieditfield(cg, 'numeric', 'Value', 0.2); xIn.Layout.Row = 9; xIn.Layout.Column = 2;
+addHeader(cg, 'Inverse Kinematics', 8, [1 5]);
+lblX = uilabel(cg, 'Text', 'X', 'HorizontalAlignment', 'right');
+lblX.Layout.Row = 9; lblX.Layout.Column = 1;
+xIn = uieditfield(cg, 'numeric', 'Value', 0.2); xIn.Layout.Row = 9; xIn.Layout.Column = [2 3];
 
-lblY = uilabel(cg, 'Text', 'Y (m)', 'HorizontalAlignment', 'right');
+lblY = uilabel(cg, 'Text', 'Y', 'HorizontalAlignment', 'right');
 lblY.Layout.Row = 10; lblY.Layout.Column = 1;
-yIn = uieditfield(cg, 'numeric', 'Value', 0.0); yIn.Layout.Row = 10; yIn.Layout.Column = 2;
+yIn = uieditfield(cg, 'numeric', 'Value', 0.0); yIn.Layout.Row = 10; yIn.Layout.Column = [2 3];
 
-lblZ = uilabel(cg, 'Text', 'Z (m)', 'HorizontalAlignment', 'right');
+lblZ = uilabel(cg, 'Text', 'Z', 'HorizontalAlignment', 'right');
 lblZ.Layout.Row = 11; lblZ.Layout.Column = 1;
-zIn = uieditfield(cg, 'numeric', 'Value', 0.15); zIn.Layout.Row = 11; zIn.Layout.Column = 2;
+zIn = uieditfield(cg, 'numeric', 'Value', 0.15); zIn.Layout.Row = 11; zIn.Layout.Column = [2 3];
 
 lblElbow = uilabel(cg, 'Text', 'elbow', 'HorizontalAlignment', 'right');
 lblElbow.Layout.Row = 12; lblElbow.Layout.Column = 1;
 elbowMode = uidropdown(cg, 'Items', {'up', 'down'}, 'Value', 'up');
 elbowMode.Layout.Row = 12; elbowMode.Layout.Column = [2 3];
 
-btnSolve = uibutton(cg, 'Text', 'Solve IK', 'ButtonPushedFcn', @(~,~) onSolveIK());
-btnSolve.Layout.Row = 13; btnSolve.Layout.Column = [2 3];
+% Time & Buttons
+lblTime = uilabel(cg, 'Text', 'time', 'HorizontalAlignment', 'right');
+lblTime.Layout.Row = 9; lblTime.Layout.Column = 4;
+timeIn = uieditfield(cg, 'numeric', 'Value', 1.0);
+timeIn.Layout.Row = 9; timeIn.Layout.Column = 5;
 
-% T04 Display Section
-addHeader(cg, 'T04 Matrix / Position', 15);
+btnSolve = uibutton(cg, 'Text', 'Solve', 'ButtonPushedFcn', @(~,~) onSolveIK());
+btnSolve.Layout.Row = 10; btnSolve.Layout.Column = [4 5];
+
+btnAnimate = uibutton(cg, 'Text', 'Animate', 'ButtonPushedFcn', @(~,~) onAnimateIK());
+btnAnimate.Layout.Row = 11; btnAnimate.Layout.Column = [4 5];
+
+% Matrices Display Section
+addHeader(cg, 'Transformation', 14, [1 3]);
+addHeader(cg, 'Jacobian', 14, [4 5]);
+
 t04Display = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
-t04Display.Layout.Row = [16 20];
+t04Display.Layout.Row = 15;
 t04Display.Layout.Column = [1 3];
+
+jacDisplay = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
+jacDisplay.Layout.Row = 15;
+jacDisplay.Layout.Column = [4 5];
 
 % Initial Sync
 syncUI();
@@ -144,6 +171,10 @@ updateRobotPlot();
 
         try
             d.setJointAngles(thetas);
+            d.M1 = mFields{1}.Value;
+            d.M2 = mFields{2}.Value;
+            d.M3 = mFields{3}.Value;
+            syncUI(); % Keep IK fields in sync with manual joint movement
             updateRobotPlot();
         catch ME
             uialert(fig, ME.message, 'Joint Limit Error')
@@ -152,10 +183,24 @@ updateRobotPlot();
     end
 
     function syncUI()
+        % Sync joint angle fields
         thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
         for j = 1:4
             radFields{j}.Value = thetas(j);
             degFields{j}.Value = rad2deg(thetas(j));
+        end
+
+        % Sync IK target fields
+        pos = d.xyz();
+        xIn.Value = floor(pos(1) * 10000000) / 10000000;
+        yIn.Value = floor(pos(2) * 10000000) / 10000000;
+        zIn.Value = floor(pos(3) * 10000000) / 10000000;
+
+        % Sync elbow mode dropdown
+        if d.elbowUp()
+            elbowMode.Value = 'up';
+        else
+            elbowMode.Value = 'down';
         end
     end
 
@@ -182,9 +227,11 @@ updateRobotPlot();
 
         % Update T04 Display
         T04 = d.transform(1,4);
-        tStr = sprintf('T04 Matrix:\n%s\n\nPosition [X Y Z]:\n[%.4f, %.4f, %.4f]', ...
-            formattedDisplayText(T04), p4(1), p4(2), p4(3));
-        t04Display.Value = tStr;
+        t04Display.Value = formattedDisplayText(T04);
+
+        % Update Jacobian Display
+        J = d.jacobian();
+        jacDisplay.Value = formattedDisplayText(J);
 
         drawnow limitrate;
     end
@@ -201,9 +248,64 @@ updateRobotPlot();
         end
     end
 
-    function addHeader(gl, txt, row)
+    function onAnimateIK()
+        target = [xIn.Value, yIn.Value, zIn.Value];
+        isUp = strcmpi(elbowMode.Value, 'up');
+        
+        % Use a temporary dobot to calculate target joint angles
+        temp_robot = dobot();
+        try
+            temp_robot.setEndEffector(target, isUp);
+            target_thetas = [temp_robot.Theta1, temp_robot.Theta2, temp_robot.Theta3, temp_robot.Theta4];
+        catch ME
+            uialert(fig, ME.message, 'IK Target Unreachable');
+            return;
+        end
+        
+        start_thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
+        
+        T = max(0.1, timeIn.Value); % Ensure animation time is at least 0.1s
+        fps = 30;
+        num_steps = max(2, ceil(T * fps));
+        
+        % Generate a smooth trajectory using a cosine easing function
+        t = linspace(0, 1, num_steps);
+        ease = (1 - cos(pi * t)) / 2;
+        
+        thetas_traj = zeros(num_steps, 4);
+        for j = 1:4
+            thetas_traj(:, j) = start_thetas(j) + (target_thetas(j) - start_thetas(j)) * ease;
+        end
+        
+        % Disable buttons during animation
+        btnSolve.Enable = 'off';
+        btnAnimate.Enable = 'off';
+        
+        % Run the animation loop
+        for i = 1:num_steps
+            try
+                d.setJointAngles(thetas_traj(i, :));
+                syncUI();
+                updateRobotPlot();
+                pause(1/fps); % Control animation speed
+            catch ME
+                uialert(fig, ['Animation aborted: ' ME.message], 'Joint Limit Error');
+                break;
+            end
+        end
+        
+        % Re-enable buttons
+        btnSolve.Enable = 'on';
+        btnAnimate.Enable = 'on';
+    end
+
+    function addHeader(gl, txt, row, col)
         h = uilabel(gl, 'Text', txt, 'FontWeight', 'bold');
         h.Layout.Row = row;
-        h.Layout.Column = [1 3];
+        if nargin > 3
+            h.Layout.Column = col;
+        else
+            h.Layout.Column = [1 3];
+        end
     end
 end

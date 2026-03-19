@@ -32,7 +32,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(30);
+            a.Theta3 = deg2rad(5);
 
             b = dobot();
             b.setEndEffector(a.xyz(), false);  % elbowUp = false
@@ -65,7 +65,7 @@ classdef dobot_tests < matlab.unittest.TestCase
             a = dobot();
             a.Theta1 = deg2rad(45);
             a.Theta2 = deg2rad(40);
-            a.Theta3 = deg2rad(30);
+            a.Theta3 = deg2rad(5);
             testCase.assertFalse(a.elbowUp)
         end
 
@@ -121,7 +121,7 @@ classdef dobot_tests < matlab.unittest.TestCase
         function testJointLimitsValid(testCase)
             d = dobot();
             % Test valid joints
-            thetas = [0.5, 0.5, 0.5, 0.5];
+            thetas = [0.5, 0.5, 0.1, 0.5];
             d.setJointAngles(thetas);
             testCase.verifyEqual([d.Theta1, d.Theta2, d.Theta3, d.Theta4], thetas);
         end
