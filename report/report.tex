@@ -215,13 +215,15 @@ This expression shows that singularities occur when either $\sin(\theta_3) = 0$ 
 
 \subsection{Inverse kinematics}
 
-The inverse kinematics problem was solved using a geometric approach \cite{mathworks2023}. First,
+The inverse kinematics problem was solved using a geometric approach, because it
+provides closed-form solutions and is well suited to two-link planar arm
+structures \cite{mathworks2023, craig2005}.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[scale=1.5, >=stealth]
         % Title
-        \node[font=\bfseries, anchor=north] at (1.5, 3.5) {X-Y Plane Geometry};
+        \node[font=\bfseries, anchor=north] at (1.5, 3.5) {X-Y Plane};
 
         \coordinate (O) at (0,0);
         \coordinate (X) at (3,0);
@@ -258,7 +260,7 @@ craig2005}.
     \centering
     \begin{tikzpicture}[scale=1.5, >=stealth]
         % Title
-        \node[font=\bfseries, anchor=north] at (1.75, 4) {R-Z Plane Geometry};
+        \node[font=\bfseries, anchor=north] at (1.75, 4) {R-Z Plane};
         
         % Define coordinates
         \coordinate (O) at (0,-1);
