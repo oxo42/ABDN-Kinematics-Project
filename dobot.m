@@ -30,6 +30,20 @@ classdef dobot < handle
             deg2rad(-10),  deg2rad(85);  % theta3
             deg2rad(-145), deg2rad(145) % theta4
             ];
+        % Dynamic parameters arbitraly chosen
+        m1 = 0.20    % equivalent mass for upper arm
+        m2 = 0.20    % equivalent mass for forearm
+        m3 = 0.05    % equivalent mass for wrist / tool / payload
+
+        lc2 = 0.075  % COM of upper arm from shoulder
+        lc3 = 0.075  % COM of forearm from elbow
+
+        I2 = 1e-3    % inertia of upper arm about COM
+        I3 = 1e-3    % inertia of forearm about COM
+        J0 = 1e-3    % base rotary inertia
+        J4 = 1e-4    % wrist/tool rotary inertia
+
+        g = 9.81
     end
 
     methods
