@@ -171,6 +171,9 @@ updateRobotPlot();
 
         try
             d.setJointAngles(thetas);
+            d.M1 = mFields{1}.Value;
+            d.M2 = mFields{2}.Value;
+            d.M3 = mFields{3}.Value;
             syncUI(); % Keep IK fields in sync with manual joint movement
             updateRobotPlot();
         catch ME
