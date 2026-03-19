@@ -17,7 +17,11 @@
 \usepackage[numbib]{tocbibind}
 \usepackage{textcomp}
 \usepackage{xurl}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{caption}
 \usetikzlibrary{calc,angles,quotes}
+\captionsetup[table]{position=bottom,skip=6pt}
 
 % --- Page Layout ---
 \geometry{
@@ -157,20 +161,22 @@ preserve the geometric constraint.
 
 The Denavit--Hartenberg parameter table derived from the frame assignment is given below.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Denavit--Hartenberg parameter table derived from the frame assignment}
-\begin{tabular}{lllll}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.5cm} >{\centering\arraybackslash}p{2cm} >{\centering\arraybackslash}p{2cm} >{\centering\arraybackslash}p{2cm} >{\centering\arraybackslash}p{2.2cm}}
 \toprule
-Link & $a_i$ (mm) & $\alpha_i$ & $d_i$ (mm) & $\theta_i$ \\
+\textbf{Link} & \textbf{$a_i$ (mm)} & \textbf{$\alpha_i$} & \textbf{$d_i$ (mm)} & \textbf{$\theta_i$} \\
 \midrule
-1 - Base & 0 & 90$^\circ$ & 150 & $\theta_1$ \\
-2 - Rear Arm & 150 & 0 & 0 & $\theta_2$ \\
-3 - Fore Arm & 150 & 0 & 0 & $\theta_3$ \\
-P - uncontrollable link & 0 & 90$^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
-4 - End effector & 0 & 0 & 0 & $\theta_4$ \\
+1 - Base & 0 & $90^\circ$ & 150 & $\theta_1$ \\
+2 - Rear Arm & 150 & $0^\circ$ & 0 & $\theta_2$ \\
+3 - Fore Arm & 150 & $0^\circ$ & 0 & $\theta_3$ \\
+P - Uncontrollable link & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
+4 - End effector & 0 & $0^\circ$ & 0 & $\theta_4$ \\
 \bottomrule
 \end{tabular}
+\caption{Denavit--Hartenberg parameter table derived from the frame assignment.}
+\label{tab:dh_parameters}
 \end{table}
 
 The coordinate frames were assigned according to the standard
@@ -404,19 +410,36 @@ Additional tests were used to verify singularity detection and workspace rejecti
 \section{Results and Validation}
 The MATLAB model was validated using forward-kinematics, inverse-kinematics and singularity test cases. Forward kinematics was checked by comparing computed end-effector positions with expected geometric outcomes, while inverse kinematics was verified by reconstructing joint configurations from target Cartesian positions. Additional tests were used to confirm singularity detection and rejection of unreachable targets.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Validation of forward and inverse kinematics test results table}
-\begin{tabular}{p{2.8cm} p{3.5cm} p{4.0cm} p{3.0cm}}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.2cm}}
 \toprule
-Test case & Input & Output & Remarks \\
+\textbf{Test case} & \textbf{Input} & \textbf{Output} & \textbf{Remarks} \\
 \midrule
-Forward kinematics & $q = (0.5236, 0.7854, 0, 0)$ rad & $(x, y, z) = (0.1837, 0.1061, 0.3191)$ m & Correct position \\
-Inverse kinematics & Target $(0.1837, 0.1061, 0.3191)$ m & $q = (0.5236, 0.7854, 0, 0)$ rad & Successfully reconstructed \\
-Singularity test & $\theta_3 = 0$ & $\det(J) = 0$ & Correctly detected \\
-Unit tests & Multiple valid/invalid cases & 11/11 tests passed & Confirms consistency \\
+Forward kinematics &
+$q = (0.5236,\ 0.7854,\ 0,\ 0)$ rad &
+$(x,y,z) = (0.1837,\ 0.1061,\ 0.3191)$ m &
+Correct position \\
+
+Inverse kinematics &
+Target $(0.1837,\ 0.1061,\ 0.3191)$ m &
+$q = (0.5236,\ 0.7854,\ 0,\ 0)$ rad &
+Successfully reconstructed \\
+
+Singularity test &
+$\theta_3 = 0$ &
+$\det(J)=0$ &
+Correctly detected \\
+
+Unit tests &
+Multiple valid/invalid cases &
+11/11 tests passed &
+Confirms consistency \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
+\caption{Validation of forward and inverse kinematics test results.}
+\label{tab:validation_results}
 \end{table}
 
 The validation results show good agreement between the analytical model and the MATLAB implementation. In particular, the consistency between the forward kinematics output and the inverse kinematics reconstruction confirms that the position mapping is internally correct. The singularity and unreachable-target tests further demonstrate that the implementation correctly handles important edge cases within the robot workspace.
