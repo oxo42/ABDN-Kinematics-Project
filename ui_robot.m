@@ -235,11 +235,6 @@ updateRobotPlot();
         drawnow limitrate;
     end
 
-    function str = formattedDisplayText(M)
-        % Helper to format the matrix for display
-        str = strtrim(evalc('disp(M)'));
-    end
-
     function onSolveIK()
         target = [xIn.Value, yIn.Value, zIn.Value];
         isUp = strcmpi(elbowMode.Value, 'up');
