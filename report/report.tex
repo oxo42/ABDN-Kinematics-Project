@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[12pt,a4paper]{article}
 
 % --- Packages ---
 \usepackage[utf8]{inputenc}
@@ -10,18 +10,63 @@
 \usepackage{titlesec}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usepackage{varwidth}
 \usepackage{float}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[numbib]{tocbibind}
 \usetikzlibrary{calc,angles,quotes}
+
+% --- Page Layout ---
+\geometry{
+    a4paper,
+    left=1in,
+    right=1in,
+    top=1in,
+    bottom=1in
+}
+
+\setstretch{1.15}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+
+% --- Section Formatting ---
+\titleformat{\section}
+  {\normalfont\Large\bfseries\centering}
+  {\thesection.}{0.5em}{\MakeUppercase}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}{0.75em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsubsection}{0.75em}{}
+
+\titlespacing*{\section}{0pt}{18pt}{12pt}
+\titlespacing*{\subsection}{0pt}{14pt}{8pt}
+\titlespacing*{\subsubsection}{0pt}{10pt}{6pt}
+
+% --- Caption Formatting ---
+\captionsetup{
+    justification=centering,
+    singlelinecheck=false
+}
 
 \begin{document}
 
 % --- Title Information ---
-\title{Kinematic Modelling and MATLAB-Based Analysis of the Dobot Magician Lite Robot Arm}
+\title{\textbf{Kinematic Modelling and MATLAB-Based Analysis of the Dobot Magician Lite Robot Arm}}
 \author{Ezekiel, Olomije \and Moskovitch, Yosef \and Nastase, Radu Emilian \and Oxley, John \and Raj, Shubham}
 \date{}
 
 \maketitle
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/fig1_dobot_display_image.jpg}
+    \caption{Dobot Magician Lite robot arm used as the subject of this project report.}
+\end{figure}
 
 \begin{abstract}
 This project develops and validates a MATLAB implementation of the forward and
@@ -90,21 +135,21 @@ preserve the geometric constraint.
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure1.png}
-    \caption{Appearance of the Dobot Magician Lite showing the physical arrangement of the four revolute joints used in the kinematic model. Adapted from \cite{dobotManual}}
+    \includegraphics[width=0.8\textwidth]{figures/fig2_appearance_magician_lite.jpg}
+    \caption{Appearance of the Dobot Magician Lite showing the physical arrangement of the four revolute joints used in the kinematic model. Adapted from \cite{dobotManual}.}
 \end{figure}
 
 \subsection{Denavit--Hartenberg parameterisation}
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure2.png}
+    \includegraphics[width=0.8\textwidth]{figures/fig3_joint_coordinate_system.jpg}
     \caption{Joint coordinate system of the Dobot Magician Lite showing the four revolute joints considered in the kinematic model. Adapted from \cite{dobotManual}.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure3.png}
+    \includegraphics[width=0.7\textwidth]{figures/fig4_dh_frame_assignment.jpg}
     \caption{Denavit--Hartenberg frame assignment used for the kinematic modelling of the Dobot Magician Lite manipulator.}
 \end{figure}
 
@@ -160,8 +205,6 @@ The final homogeneous transformation matrix provides both the orientation of the
 end-effector and its Cartesian position relative to the base frame. The position
 terms of this transformation were later used to derive the inverse kinematics
 equations and to construct the Jacobian for velocity and singularity analysis.
-
-TODO: This is wrong as we need L1 which is non-zero
 
 \[
 T_{04} = \begin{bmatrix}
@@ -230,23 +273,19 @@ structures \cite{mathworks2023, craig2005}.
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[scale=1.5, >=stealth]
-        % Title
-        \node[font=\bfseries, anchor=north] at (1.5, 3.5) {X-Y Plane};
+        \node[font=\bfseries, anchor=north] at (1.5, 3.5) {X-Y Plane Geometry};
 
         \coordinate (O) at (0,0);
         \coordinate (X) at (3,0);
         \coordinate (Y) at (0,3);
-        \coordinate (J3) at (55:2.8); % Target (r, z) in projection
+        \coordinate (J3) at (55:2.8);
         
-        % Axes
         \draw[->] (-0.5,0) -- (X) node[right] {$x$};
         \draw[->] (0,-0.5) -- (Y) node[above] {$y$};
 
-        % Link projection
         \draw[thick] (O) -- (J3) node[midway, right] {$r$};
         \node[above right] at (J3) {$(x, y)$};
 
-        % Angle q1 from y-axis to J3
         \pic [draw, "$\theta_1$", angle eccentricity=1.5, angle radius=1cm] {angle = X--O--J3};
 
         \fill (O) circle (1.5pt);
@@ -258,68 +297,57 @@ structures \cite{mathworks2023, craig2005}.
 The base joint angle was obtained from the top-view projection of the target
 position:
 \[ \theta_1 = \operatorname{atan2}(y, x) \]
+
 The radial distance in the horizontal plane is then $r = \sqrt{x^2 + y^2}$. The
 remaining problem is reduced to a planar two-link geometry in the $r$--$z$ plane
-\cite{craig2005}. A geometric inverse-kinematics method was selected because it provides
-closed-form solutions and is well suited to two-link planar arm structures \cite{mathworks2023,
-craig2005}.
-
-TODO: blurb as to why atan2 plus a link to the matlab docs.
+\cite{craig2005}. The function $\operatorname{atan2}(y,x)$ is used for the base
+joint angle because it returns the correct angular quadrant from the Cartesian
+coordinates and is therefore more robust than using a simple inverse tangent
+ratio alone \cite{mathworks2023}. A geometric inverse-kinematics method was
+selected because it provides closed-form solutions and is well suited to
+two-link planar arm structures \cite{mathworks2023, craig2005}.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[scale=1.5, >=stealth]
-        % Title
-        \node[font=\bfseries, anchor=north] at (1.75, 4) {R-Z Plane};
+        \node[font=\bfseries, anchor=north] at (1.75, 4) {R-Z Plane Geometry};
         
-        % Define coordinates
         \coordinate (O) at (0,-1);
         \coordinate (J1) at (0,0);
         \coordinate (J2u) at (40:3);
         \coordinate (J2d) at (10:3);
-        \coordinate (J3) at ($(J2u) + (10:3)$); % if theta2 is -30 we add that to the 40
-        \coordinate (Zp) at (J3 |- J1); % Projection on horizontal
+        \coordinate (J3) at ($(J2u) + (10:3)$);
+        \coordinate (Zp) at (J3 |- J1);
 
-        % Draw base link
         \draw[thick] (O) -- (J1) node[midway, left] {$L_1$};
         
-        % Draw links
         \draw[thick] (J1) -- (J2u) node[midway, above left] {$L_2$};
         \draw[thick] (J2u) -- (J3) node[midway, above right] {$L_3$};
         \draw[thick] (J1) -- (J2d) node[midway, above left] {};
         \draw[thick] (J2d) -- (J3) node[midway, above right] {};
         
-        % Target point
         \node[above right] at (J3) {$(r, z)$};
         \node[left] at (O) {$O$};
         \node[above left] at (J2u) {Elbow up};
 
-        
-        % Distance h (hypotenuse)
         \draw[thick, green!60!black] (J1) -- (J3) node[midway, above] {$h$};
-        
-        % Vertical z_r
         \draw[blue!70!black, dashed] (J3) -- (Zp) node[midway, right] {$z_r$};
 
-        % Horizontal axes
         \draw[dashed] (J1) -- (Zp);
 
-        % Extension for theta3
         \coordinate (Ext) at ($(J1)!1.5!(J2u)$);
         \draw[dashed] (J2u) -- (Ext);
         \coordinate (Extd) at ($(J1)!1.5!(J2d)$);
         \draw[dashed] (J2d) -- (Extd);
 
-        % Angles
         \pic [draw, "$\theta_{2u}$", angle eccentricity=1.3, angle radius=1cm] {angle = Zp--J1--J2u};
         \pic [draw, "$\theta_{2d}$", angle eccentricity=1.1, angle radius=3cm] {angle = Zp--J1--J2d};
         \pic [draw, green!60!black, "$\phi$", angle eccentricity=1.2, angle radius=1.8cm] {angle = Zp--J1--J3};
         \pic [draw, "$\beta$", angle eccentricity=1.5, angle radius=2.0cm] {angle = J3--J1--J2u};
         
-        % theta3 angle from extension of L2 to L3
         \pic [draw, blue, "$\theta_3$", angle eccentricity=1.5, angle radius=0.7cm] {angle = J3--J2u--Ext};
         \pic [draw, blue, "$\theta_3$", angle eccentricity=1.5, angle radius=0.7cm] {angle = Extd--J2d--J3};
-        % Joint dots
+
         \fill (O) circle (1.5pt);
         \fill (J1) circle (1.5pt);
         \fill (J2u) circle (1.5pt);
@@ -330,78 +358,10 @@ TODO: blurb as to why atan2 plus a link to the matlab docs.
 \end{figure}
 
 Figure 5 shows the planar geometry used to derive the shoulder and elbow solutions. Two solution branches exist for reachable targets: an elbow-up configuration and an elbow-down configuration. Accordingly, the shoulder angle may be written as
-\[ \theta_{2u} = \phi + \beta \]
-
-where $\theta_{2u}$ is the shoulder angle for the elbow-up configuration.
+\[ \theta_2 = \phi + \beta \]
 for one branch and
-\[ \theta_{2d} = \phi - \beta \]
-
-where $\theta_{2d}$  is the shoulder angle for the elbow-down configuration.
+\[ \theta_2 = \phi - \beta \]
 for the other. The elbow angle $\theta_3$ is then obtained from the corresponding trigonometric relations, giving two valid inverse-kinematics solutions for the same target position.
-
-
-
-
-For $\theta_3$, the forearm angle, we have two cases as above as well: \textbf{elbow-up} and \textbf{elbow-down}. However, the derivation for the inverse kinematic equation for this angle is a bit more complex.
-
-Starting with the forward kinematics:
-\begin{equation}
-    r = 0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3)
-\end{equation}
-\begin{equation}
-    Z = 0.15 \sin \theta_2 + 0.15 \sin(\theta_2 + \theta_3)
-\end{equation}
-
-Squaring both sides of both equations above, using $(a+b)^2 = a^2 + b^2 + 2ab$:
-\begin{equation}
-    r^2 = (0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3))^2
-\end{equation}
-\begin{equation}
-    r^2 = 0.15^2 \cos^2 \theta_2 + 0.15^2 \cos^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \cos \theta_2 \cos(\theta_2 + \theta_3)
-\end{equation}
-\begin{equation}
-    Z^2 = 0.15^2 \sin^2 \theta_2 + 0.15^2 \sin^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \sin \theta_2 \sin(\theta_2 + \theta_3)
-\end{equation}
-
-Using the trigonometric identities:
-\begin{itemize}
-    \item $\cos^2 \theta + \sin^2 \theta = 1$
-    \item $\cos(A - B) = \cos A \cos B + \sin A \sin B$
-\end{itemize}
-
-Adding $r^2$ and $Z^2$:
-\begin{equation}
-    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) [\cos \theta_2 \cos(\theta_2 + \theta_3) + \sin \theta_2 \sin(\theta_2 + \theta_3)]
-\end{equation}
-
-Simplifying using the cosine difference identity $\cos((\theta_2 + \theta_3) - \theta_2) = \cos \theta_3$:
-\begin{equation}
-    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) \cos \theta_3
-\end{equation}
-
-Solving for $\cos \theta_3$:
-\begin{equation}
-    \cos \theta_3 = \frac{r^2 + Z^2 - 0.15^2 - 0.15^2}{2(0.15)(0.15)}
-\end{equation}
-
-Then for the sine:
-\begin{equation}
-    \sin \theta_3 = \sqrt{1 - \cos^2 \theta_3} \quad \text{(for elbow-down)}
-\end{equation}
-
-And the value of $\sin \theta_3$ above is negative for the elbow-up condition. Finally, using the two-argument arctangent:
-\begin{equation}
-    \theta_3 = \operatorname{atan2}(\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-down)}
-\end{equation}
-\begin{equation}
-    \theta_3 = \operatorname{atan2}(-\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-up)}
-\end{equation}
-
-
-
-
-
-
 
 \section{Materials and Methods}
 
@@ -423,7 +383,7 @@ The inverse kinematics solution was derived by:
 This approach was preferred over numerical methods due to its computational efficiency, analytical clarity, and suitability for real-time applications.
 
 \subsection{Dynamic modelling approach}
-The dynamic behaviour of the manipulator was considered using the standard rigid-body robot dynamics formulation []
+The dynamic behaviour of the manipulator was considered using the standard rigid-body robot dynamics formulation \cite{siciliano2009, spong2006}
 \[ \tau = M(q)\ddot{q} + C(q, \dot{q})\dot{q} + G(q) \]
 where $\tau$ is the vector of joint torques, $M(q)$ is the inertia matrix, $C(q, \dot{q})\dot{q}$ represents Coriolis and centrifugal effects, and $G(q)$ is the gravity vector.
 
@@ -461,13 +421,13 @@ The validation results show good agreement between the analytical model and the 
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure6.png}
+    \includegraphics[width=0.8\textwidth]{figures/fig7_successful_inverse_kinematics_solution.jpg}
     \caption{Successful inverse kinematics solution using the MATLAB-based UI.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure7.png}
+    \includegraphics[width=0.8\textwidth]{figures/fig8_unreachable_target.jpg}
     \caption{Detection of unreachable target in inverse kinematics.}
 \end{figure}
 
@@ -482,11 +442,10 @@ Despite these limitations, the final model provides a robust analytical and comp
 
 \begin{figure}[H]
     \centering
-    %\includegraphics[width=0.8\textwidth]{figure8.png}
+    \includegraphics[width=0.65\textwidth]{figures/fig9_principal_dimensions.jpg}
     \caption{Principal dimensions of the Dobot Magician Lite used to support the geometric assumptions of the model. Adapted from \cite{dobotManual}.}
 \end{figure}
 
-\section{References}
 \bibliographystyle{plain}
 \bibliography{references}
 
