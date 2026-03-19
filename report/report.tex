@@ -249,12 +249,14 @@ structures \cite{mathworks2023, craig2005}.
 
 The base joint angle was obtained from the top-view projection of the target
 position:
-\[ \theta_1 = \arctan\left(\frac{y}{x}\right) \]
+\[ \theta_1 = \operatorname{atan2}(y, x) \]
 The radial distance in the horizontal plane is then $r = \sqrt{x^2 + y^2}$. The
 remaining problem is reduced to a planar two-link geometry in the $r$--$z$ plane
 \cite{craig2005}. A geometric inverse-kinematics method was selected because it provides
 closed-form solutions and is well suited to two-link planar arm structures \cite{mathworks2023,
 craig2005}.
+
+TODO: blurb as to why atan2 plus a link to the matlab docs.
 
 \begin{figure}[H]
     \centering
