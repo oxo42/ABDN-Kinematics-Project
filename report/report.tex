@@ -15,6 +15,8 @@
 \usepackage{setspace}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage[numbib]{tocbibind}
+\usepackage{textcomp}
+\usepackage{xurl}
 \usetikzlibrary{calc,angles,quotes}
 
 % --- Page Layout ---
@@ -405,7 +407,7 @@ The MATLAB model was validated using forward-kinematics, inverse-kinematics and 
 \begin{table}[H]
 \centering
 \caption{Validation of forward and inverse kinematics test results table}
-\begin{tabular}{llll}
+\begin{tabular}{p{2.8cm} p{3.5cm} p{4.0cm} p{3.0cm}}
 \toprule
 Test case & Input & Output & Remarks \\
 \midrule
@@ -421,13 +423,13 @@ The validation results show good agreement between the analytical model and the 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig7_successful_inverse_kinematics_solution.jpg}
+    \includegraphics[width=0.68\textwidth]{figures/fig7_successful_inverse_kinematics_solution.jpg}
     \caption{Successful inverse kinematics solution using the MATLAB-based UI.}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/fig8_unreachable_target.jpg}
+    \includegraphics[width=0.68\textwidth]{figures/fig8_unreachable_target.jpg}
     \caption{Detection of unreachable target in inverse kinematics.}
 \end{figure}
 
