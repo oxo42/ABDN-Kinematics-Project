@@ -27,7 +27,7 @@ classdef dobot < handle
         JointLimits = [
             deg2rad(-135), deg2rad(135); % theta1
             deg2rad(-5),   deg2rad(80);  % theta2
-            deg2rad(-10),  deg2rad(85);  % theta3
+            deg2rad(-85),  deg2rad(10);  % theta3
             deg2rad(-145), deg2rad(145) % theta4
             ];
         % Dynamic parameters arbitraly chosen

@@ -103,7 +103,7 @@ timeIn.Layout.Row = 9; timeIn.Layout.Column = 5;
 btnSolve = uibutton(cg, 'Text', 'Solve', 'ButtonPushedFcn', @(~,~) onSolveIK());
 btnSolve.Layout.Row = 10; btnSolve.Layout.Column = [4 5];
 
-btnAnimate = uibutton(cg, 'Text', 'Animate');
+btnAnimate = uibutton(cg, 'Text', 'Animate', 'ButtonPushedFcn', @(~,~) onAnimateIK());
 btnAnimate.Layout.Row = 11; btnAnimate.Layout.Column = [4 5];
 
 % Matrices Display Section
@@ -246,6 +246,57 @@ updateRobotPlot();
         catch ME
             uialert(fig, ME.message, 'IK Error');
         end
+    end
+
+    function onAnimateIK()
+        target = [xIn.Value, yIn.Value, zIn.Value];
+        isUp = strcmpi(elbowMode.Value, 'up');
+        
+        % Use a temporary dobot to calculate target joint angles
+        temp_robot = dobot();
+        try
+            temp_robot.setEndEffector(target, isUp);
+            target_thetas = [temp_robot.Theta1, temp_robot.Theta2, temp_robot.Theta3, temp_robot.Theta4];
+        catch ME
+            uialert(fig, ME.message, 'IK Target Unreachable');
+            return;
+        end
+        
+        start_thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
+        
+        T = max(0.1, timeIn.Value); % Ensure animation time is at least 0.1s
+        fps = 30;
+        num_steps = max(2, ceil(T * fps));
+        
+        % Generate a smooth trajectory using a cosine easing function
+        t = linspace(0, 1, num_steps);
+        ease = (1 - cos(pi * t)) / 2;
+        
+        thetas_traj = zeros(num_steps, 4);
+        for j = 1:4
+            thetas_traj(:, j) = start_thetas(j) + (target_thetas(j) - start_thetas(j)) * ease;
+        end
+        
+        % Disable buttons during animation
+        btnSolve.Enable = 'off';
+        btnAnimate.Enable = 'off';
+        
+        % Run the animation loop
+        for i = 1:num_steps
+            try
+                d.setJointAngles(thetas_traj(i, :));
+                syncUI();
+                updateRobotPlot();
+                pause(1/fps); % Control animation speed
+            catch ME
+                uialert(fig, ['Animation aborted: ' ME.message], 'Joint Limit Error');
+                break;
+            end
+        end
+        
+        % Re-enable buttons
+        btnSolve.Enable = 'on';
+        btnAnimate.Enable = 'on';
     end
 
     function addHeader(gl, txt, row, col)
