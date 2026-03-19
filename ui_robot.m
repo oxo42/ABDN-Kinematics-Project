@@ -37,12 +37,14 @@ legend(ax, {'Links', 'World Origin', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effec
 
 % --- Right: Controls ---
 controlPanel = uipanel(mainLayout, 'Title', 'Controls');
-cg = uigridlayout(controlPanel, [22 3]);
-cg.RowHeight = repmat({24}, 1, 22);
-cg.ColumnWidth = {80, '1x', '1x'};
+cg = uigridlayout(controlPanel, [15 5]);
+cg.RowHeight = {24, 24, 24, 24, 24, 24, 10, 24, 24, 24, 24, 24, 10, 24, '1x'};
+cg.ColumnWidth = {40, '1x', '1x', 40, '1x'};
 
-% Joint Angles Section
-addHeader(cg, 'Joint Angles', 1);
+% Joint Angles & Dynamics Section
+addHeader(cg, 'Joint Angles', 1, [1 3]);
+addHeader(cg, 'Dynamics', 1, [4 5]);
+
 lblRad = uilabel(cg, 'Text', 'Radians', 'HorizontalAlignment', 'center');
 lblRad.Layout.Row = 2; lblRad.Layout.Column = 2;
 lblDeg = uilabel(cg, 'Text', 'Degrees', 'HorizontalAlignment', 'center');
@@ -53,7 +55,7 @@ lblDeg.Layout.Row = 2; lblDeg.Layout.Column = 3;
 for i = 1:4
     row = 2 + i;
     lblTheta = uilabel(cg, 'Text', sprintf('\\theta_%d', i), 'Interpreter', 'latex', 'HorizontalAlignment', 'right');
-    lblTheta.Layout.Row = row;
+    lblTheta.Layout.Row = row; lblTheta.Layout.Column = 1;
 
     radFields{i} = uieditfield(cg, 'numeric', 'Value', 0, 'ValueChangedFcn', @(src, event) updateFromRad(i));
     radFields{i}.Layout.Row = row; radFields{i}.Layout.Column = 2;
@@ -63,33 +65,58 @@ for i = 1:4
     degFields{i}.Layout.Row = row; degFields{i}.Layout.Column = 3;
 end
 
+% Dynamics fields
+mFields = cell(1,3);
+for i = 1:3
+    row = 2 + i;
+    lblM = uilabel(cg, 'Text', sprintf('M%d', i), 'HorizontalAlignment', 'right');
+    lblM.Layout.Row = row; lblM.Layout.Column = 4;
+    mFields{i} = uieditfield(cg, 'numeric', 'Value', 0);
+    mFields{i}.Layout.Row = row; mFields{i}.Layout.Column = 5;
+end
+
 % IK Target Section
-addHeader(cg, 'Inverse Kinematics Target', 8);
-lblX = uilabel(cg, 'Text', 'X (m)', 'HorizontalAlignment', 'right');
-lblX.Layout.Row = 9;
-xIn = uieditfield(cg, 'numeric', 'Value', 0.2); xIn.Layout.Row = 9; xIn.Layout.Column = 2;
+addHeader(cg, 'Inverse Kinematics', 8, [1 5]);
+lblX = uilabel(cg, 'Text', 'X', 'HorizontalAlignment', 'right');
+lblX.Layout.Row = 9; lblX.Layout.Column = 1;
+xIn = uieditfield(cg, 'numeric', 'Value', 0.2); xIn.Layout.Row = 9; xIn.Layout.Column = [2 3];
 
-lblY = uilabel(cg, 'Text', 'Y (m)', 'HorizontalAlignment', 'right');
+lblY = uilabel(cg, 'Text', 'Y', 'HorizontalAlignment', 'right');
 lblY.Layout.Row = 10; lblY.Layout.Column = 1;
-yIn = uieditfield(cg, 'numeric', 'Value', 0.0); yIn.Layout.Row = 10; yIn.Layout.Column = 2;
+yIn = uieditfield(cg, 'numeric', 'Value', 0.0); yIn.Layout.Row = 10; yIn.Layout.Column = [2 3];
 
-lblZ = uilabel(cg, 'Text', 'Z (m)', 'HorizontalAlignment', 'right');
+lblZ = uilabel(cg, 'Text', 'Z', 'HorizontalAlignment', 'right');
 lblZ.Layout.Row = 11; lblZ.Layout.Column = 1;
-zIn = uieditfield(cg, 'numeric', 'Value', 0.15); zIn.Layout.Row = 11; zIn.Layout.Column = 2;
+zIn = uieditfield(cg, 'numeric', 'Value', 0.15); zIn.Layout.Row = 11; zIn.Layout.Column = [2 3];
 
 lblElbow = uilabel(cg, 'Text', 'elbow', 'HorizontalAlignment', 'right');
 lblElbow.Layout.Row = 12; lblElbow.Layout.Column = 1;
 elbowMode = uidropdown(cg, 'Items', {'up', 'down'}, 'Value', 'up');
 elbowMode.Layout.Row = 12; elbowMode.Layout.Column = [2 3];
 
-btnSolve = uibutton(cg, 'Text', 'Solve IK', 'ButtonPushedFcn', @(~,~) onSolveIK());
-btnSolve.Layout.Row = 13; btnSolve.Layout.Column = [2 3];
+% Time & Buttons
+lblTime = uilabel(cg, 'Text', 'time', 'HorizontalAlignment', 'right');
+lblTime.Layout.Row = 9; lblTime.Layout.Column = 4;
+timeIn = uieditfield(cg, 'numeric', 'Value', 1.0);
+timeIn.Layout.Row = 9; timeIn.Layout.Column = 5;
 
-% T04 Display Section
-addHeader(cg, 'T04 Matrix / Position', 15);
+btnSolve = uibutton(cg, 'Text', 'Solve', 'ButtonPushedFcn', @(~,~) onSolveIK());
+btnSolve.Layout.Row = 10; btnSolve.Layout.Column = [4 5];
+
+btnAnimate = uibutton(cg, 'Text', 'Animate');
+btnAnimate.Layout.Row = 11; btnAnimate.Layout.Column = [4 5];
+
+% Matrices Display Section
+addHeader(cg, 'Transformation', 14, [1 3]);
+addHeader(cg, 'Jacobian', 14, [4 5]);
+
 t04Display = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
-t04Display.Layout.Row = [16 20];
+t04Display.Layout.Row = 15;
 t04Display.Layout.Column = [1 3];
+
+jacDisplay = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
+jacDisplay.Layout.Row = 15;
+jacDisplay.Layout.Column = [4 5];
 
 % Initial Sync
 syncUI();
@@ -201,7 +228,16 @@ updateRobotPlot();
             formattedDisplayText(T04), p4(1), p4(2), p4(3));
         t04Display.Value = tStr;
 
+        % Update Jacobian Display
+        J = d.jacobian();
+        jacDisplay.Value = formattedDisplayText(J);
+
         drawnow limitrate;
+    end
+
+    function str = formattedDisplayText(M)
+        % Helper to format the matrix for display
+        str = strtrim(evalc('disp(M)'));
     end
 
     function onSolveIK()
@@ -216,9 +252,13 @@ updateRobotPlot();
         end
     end
 
-    function addHeader(gl, txt, row)
+    function addHeader(gl, txt, row, col)
         h = uilabel(gl, 'Text', txt, 'FontWeight', 'bold');
         h.Layout.Row = row;
-        h.Layout.Column = [1 3];
+        if nargin > 3
+            h.Layout.Column = col;
+        else
+            h.Layout.Column = [1 3];
+        end
     end
 end
