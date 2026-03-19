@@ -69,13 +69,15 @@ classdef dobot < handle
         end
 
         function I2 = I2(obj)
-            % I2 is the inertia of the upper arm about its center of mass
-            I2 = 0.01;
+            % I2 is the inertia of the upper arm about its center of mass.
+            % The upper arm is approximated as a uniform slender rod.
+            I2 = (1 / 12) * obj.M1 * obj.L2^2;
         end
 
         function I3 = I3(obj)
-            % I3 is the inertia of the forearm about its center of mass
-            I3 = 0.01;
+            % I3 is the inertia of the forearm about its center of mass.
+            % The forearm is approximated as a uniform slender rod.
+            I3 = (1 / 12) * obj.M2 * obj.L3^2;
         end
 
         function J0 = J0(obj)
@@ -400,6 +402,212 @@ classdef dobot < handle
 
             cond1 = abs(sin(q3)) < tol;
             cond2 = abs(l2*cos(q2) + l3*cos(q2 + q3)) < tol;
+        end
+
+        function validateMass(~, value, name)
+            %Validates mass for links
+            if isempty(value) || ~isscalar(value) || ~isfinite(value) || value < 0
+                error('dobot:InvalidMass', ...
+                    '%s must be a finite non-negative scalar.', name);
+            end
+        end
+
+        function x = parseDynamicState(obj, x, name)
+            %Validates the dynamic states and fill q or q derivations if needed 
+            if isempty(x)
+                switch name
+                    case 'q'
+                        x = [obj.Theta1; obj.Theta2; obj.Theta3; obj.Theta4];
+                    otherwise
+                        x = zeros(4, 1);
+                end
+            end
+
+            if ~isnumeric(x) || numel(x) ~= 4
+                error('dobot:InvalidDynamicState', ...
+                    '%s must contain exactly four numeric elements.', name);
+            end
+
+            x = reshape(double(x), 4, 1);
+        end
+
+        function [I2, I3] = linkInertiasFromMasses(obj, m1, m2)
+            %LINKINERTIASFROMMASSES Estimates link COM inertias from link masses.
+            %   Assumes each arm link is a uniform slender rod.
+            arguments
+                obj
+                m1 (1,1) double = NaN
+                m2 (1,1) double = NaN
+            end
+
+            if isnan(m1)
+                m1 = obj.M1;
+            end
+            if isnan(m2)
+                m2 = obj.M2;
+            end
+
+            obj.validateMass(m1, 'm1');
+            obj.validateMass(m2, 'm2');
+
+            I2 = (1 / 12) * m1 * obj.L2^2;
+            I3 = (1 / 12) * m2 * obj.L3^2;
+        end
+
+        function M = inertiaMatrix(obj, q)
+            %INERTIAMATRIX Returns the manipulator inertia matrix M(q).
+            arguments
+                obj
+                q double = []
+            end
+
+            q = obj.parseDynamicState(q, 'q');
+
+            q2 = q(2);
+            q3 = q(3);
+
+            m1 = obj.M1;
+            m2 = obj.M2;
+            m3 = obj.M3;
+            lc2 = obj.lc2();
+            lc3 = obj.lc3();
+
+            obj.validateMass(m1, 'M1');
+            obj.validateMass(m2, 'M2');
+            obj.validateMass(m3, 'M3');
+
+            r1 = lc2 * cos(q2);
+            r2 = obj.L2 * cos(q2) + lc3 * cos(q2 + q3);
+            r3 = obj.L2 * cos(q2) + obj.L3 * cos(q2 + q3);
+
+            M11 = obj.J0() + obj.J4() + m1 * r1^2 + m2 * r2^2 + m3 * r3^2;
+            M22 = m1 * lc2^2 + obj.I2() + ...
+                m2 * (obj.L2^2 + lc3^2 + 2 * obj.L2 * lc3 * cos(q3)) + obj.I3() + ...
+                m3 * (obj.L2^2 + obj.L3^2 + 2 * obj.L2 * obj.L3 * cos(q3));
+            M23 = m2 * (lc3^2 + obj.L2 * lc3 * cos(q3)) + obj.I3() + ...
+                m3 * (obj.L3^2 + obj.L2 * obj.L3 * cos(q3));
+            M33 = m2 * lc3^2 + obj.I3() + m3 * obj.L3^2;
+
+            M = [
+                M11,      0,   0,        obj.J4();
+                0,      M22, M23,        0;
+                0,      M23, M33,        0;
+                obj.J4(), 0,   0,        obj.J4()
+                ];
+        end
+
+        function G = gravityVector(obj, q)
+            %GRAVITYVECTOR Returns the gravity term G(q).
+            arguments
+                obj
+                q double = []
+            end
+
+            q = obj.parseDynamicState(q, 'q');
+
+            q2 = q(2);
+            q3 = q(3);
+
+            m1 = obj.M1;
+            m2 = obj.M2;
+            m3 = obj.M3;
+            lc2 = obj.lc2();
+            lc3 = obj.lc3();
+
+            obj.validateMass(m1, 'M1');
+            obj.validateMass(m2, 'M2');
+            obj.validateMass(m3, 'M3');
+
+            G2 = obj.g * ((m1 * lc2 + (m2 + m3) * obj.L2) * cos(q2) + ...
+                (m2 * lc3 + m3 * obj.L3) * cos(q2 + q3));
+            G3 = obj.g * (m2 * lc3 + m3 * obj.L3) * cos(q2 + q3);
+
+            G = [0; G2; G3; 0];
+        end
+
+        function n = coriolisVector(obj, q, qd)
+            %CORIOLISVECTOR Returns the Coriolis/centrifugal vector C(q,qd)qd.
+            arguments
+                obj
+                q double = []
+                qd double = []
+            end
+
+            q = obj.parseDynamicState(q, 'q');
+            qd = obj.parseDynamicState(qd, 'qd');
+
+            q2 = q(2);
+            q3 = q(3);
+
+            qd1 = qd(1);
+            qd2 = qd(2);
+            qd3 = qd(3);
+
+            m1 = obj.M1;
+            m2 = obj.M2;
+            m3 = obj.M3;
+            lc2 = obj.lc2();
+            lc3 = obj.lc3();
+
+            obj.validateMass(m1, 'M1');
+            obj.validateMass(m2, 'M2');
+            obj.validateMass(m3, 'M3');
+
+            r1 = lc2 * cos(q2);
+            r2 = obj.L2 * cos(q2) + lc3 * cos(q2 + q3);
+            r3 = obj.L2 * cos(q2) + obj.L3 * cos(q2 + q3);
+
+            dr1_dq2 = -lc2 * sin(q2);
+            dr2_dq2 = -obj.L2 * sin(q2) - lc3 * sin(q2 + q3);
+            dr2_dq3 = -lc3 * sin(q2 + q3);
+            dr3_dq2 = -obj.L2 * sin(q2) - obj.L3 * sin(q2 + q3);
+            dr3_dq3 = -obj.L3 * sin(q2 + q3);
+
+            dM11_dq2 = 2 * m1 * r1 * dr1_dq2 + ...
+                2 * m2 * r2 * dr2_dq2 + ...
+                2 * m3 * r3 * dr3_dq2;
+            dM11_dq3 = 2 * m2 * r2 * dr2_dq3 + ...
+                2 * m3 * r3 * dr3_dq3;
+
+            H = obj.L2 * (m2 * lc3 + m3 * obj.L3) * sin(q3);
+
+            n1 = (dM11_dq2 * qd2 + dM11_dq3 * qd3) * qd1;
+            n2 = -H * (2 * qd2 * qd3 + qd3^2);
+            n3 = H * qd2^2;
+
+            n = [n1; n2; n3; 0];
+        end
+
+
+        function [tau, terms] = inverseDynamics(obj, qd, qdd, q)
+            %INVERSEDYNAMICS Returns joint torques from the manipulator dynamics.
+            %   tau = M(q) * qdd + C(q,qd) * qd + G(q)
+            arguments
+                obj
+                qd double = []
+                qdd double = []
+                q double = []
+            end
+
+            q = obj.parseDynamicState(q, 'q');
+            qd = obj.parseDynamicState(qd, 'qd');
+            qdd = obj.parseDynamicState(qdd, 'qdd');
+
+            M = obj.inertiaMatrix(q);
+            Cqd = obj.coriolisVector(q, qd);
+            G = obj.gravityVector(q);
+
+            tau = M * qdd + Cqd + G;
+
+            if nargout > 1
+                terms = struct( ...
+                    'M', M, ...
+                    'coriolis', Cqd, ...
+                    'gravity', G, ...
+                    'q', q, ...
+                    'qd', qd, ...
+                    'qdd', qdd);
+            end
         end
     end
 end
