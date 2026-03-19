@@ -68,19 +68,20 @@
 
 \maketitle
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.45\textwidth]{figures/fig1_dobot_display_image.jpg}
+    \vspace{-1.6cm}
+    \includegraphics[width=0.58\textwidth]{figures/fig1_dobot_display_image.jpg}
     \caption{Dobot Magician Lite robot arm used as the subject of this project report.}
+    \label{fig:dobot_main}
 \end{figure}
 
-\begin{abstract}
-This project develops and validates a MATLAB implementation of the forward and
-inverse kinematics for the Dobot Magician Lite. By simplifying the robot's
-mechanical constraints into a 4-degree-of-freedom serial model, the system
-provides accurate positioning, Jacobian-based singularity analysis, and robust
-workspace validation.
-\end{abstract}
+\vspace{0.3cm}
+\section*{Abstract}
+\vspace{-0.3cm}
+
+\vspace{0.2cm}
+This project presents the kinematic modelling and MATLAB-based analysis of the Dobot Magician Lite robot arm. A simplified equivalent serial model was developed to represent the physical robot while preserving the essential geometric effect of its parallelogram mechanism. Using the Denavit--Hartenberg convention, the forward kinematics were derived analytically, and a geometric inverse-kinematics method was formulated to recover joint variables from target Cartesian positions. A Jacobian-based analysis was then used to identify singular configurations and to interpret the manipulator's local motion behaviour. The resulting model was implemented and validated in MATLAB through forward-kinematics checks, inverse-kinematics reconstruction, singularity detection, and unreachable-target testing. The results show that the developed framework provides a consistent and practical basis for analysing the motion of the Dobot Magician Lite and can serve as a foundation for future extensions involving dynamics, control, and trajectory planning.
 
 \section{Introduction}
 Robot manipulators are widely used across industrial, medical and educational
