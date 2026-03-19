@@ -8,13 +8,13 @@ function ui_robot()
 %   - IK target input
 
 % Initialize robot object
-d = dobot(0, deg2rad(30), deg2rad(-5), 0);
+d = dobot(0, deg2rad(30), deg2rad(-5), 0, 0.5, 0.5, 0.5);
 
 % ---------- UI Setup ----------
-fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [100 80 1500 700], ...
+fig = uifigure('Name', 'Dobot Magician Lite - UI Robot', 'Position', [60 60 1720 760], ...
     'WindowKeyPressFcn', @(src, event) onWindowKeyPress(event));
 mainLayout = uigridlayout(fig, [1 2]);
-mainLayout.ColumnWidth = {'1.7x', '1x'};
+mainLayout.ColumnWidth = {'1.55x', '1.35x'};
 
 % --- Left: 3D Plot ---
 plotPanel = uipanel(mainLayout, 'Title', '3D Plot of Robot');
@@ -35,15 +35,21 @@ hJ3 = plot3(ax, 0, 0, 0, 'ro', 'MarkerSize', 8, 'MarkerFaceColor', 'r');
 hJ4 = plot3(ax, 0, 0, 0, 'co', 'MarkerSize', 8, 'MarkerFaceColor', 'c');
 legend(ax, {'Links', 'World Origin', 'Joint 1', 'Joint 2', 'Joint 3', 'End Effector'}, 'Location', 'northeastoutside');
 
-% --- Right: Controls ---
-controlPanel = uipanel(mainLayout, 'Title', 'Controls');
-cg = uigridlayout(controlPanel, [15 5]);
-cg.RowHeight = {24, 24, 24, 24, 24, 24, 10, 24, 24, 24, 24, 24, 10, 24, '1x'};
-cg.ColumnWidth = {40, '1x', '1x', 40, '2x'};
+% --- Right: Controls & Displays ---
+controlPanel = uipanel(mainLayout, 'Title', 'Controls & Displays');
+controlLayout = uigridlayout(controlPanel, [2 1]);
+controlLayout.RowHeight = {430, 180};
+controlLayout.Padding = [8 8 8 8];
+
+cg = uigridlayout(controlLayout, [13 5]);
+cg.RowHeight = {24, 24, 24, 24, 24, 24, 10, 24, 24, 24, 24, 24, '1x'};
+cg.ColumnWidth = {40, '1x', '1x', 50, '2x'};
+cg.Layout.Row = 1;
+cg.Layout.Column = 1;
 
 % Joint Angles & Dynamics Section
 addHeader(cg, 'Joint Angles', 1, [1 3]);
-addHeader(cg, 'Dynamics', 1, [4 5]);
+addHeader(cg, 'Dynamics Inputs', 1, [4 5]);
 
 lblRad = uilabel(cg, 'Text', 'Radians', 'HorizontalAlignment', 'center');
 lblRad.Layout.Row = 2; lblRad.Layout.Column = 2;
@@ -53,26 +59,31 @@ lblDeg.Layout.Row = 2; lblDeg.Layout.Column = 3;
 % Create 4 joint rows
 [radFields, degFields] = deal(cell(1,4));
 for i = 1:4
-    row = 2 + i;
-    lblTheta = uilabel(cg, 'Text', sprintf('\\theta_%d', i), 'Interpreter', 'latex', 'HorizontalAlignment', 'right');
+    idx = i;
+    row = 2 + idx;
+    lblTheta = uilabel(cg, 'Text', sprintf('\\theta_%d', idx), 'Interpreter', 'latex', 'HorizontalAlignment', 'right');
     lblTheta.Layout.Row = row; lblTheta.Layout.Column = 1;
 
-    radFields{i} = uieditfield(cg, 'numeric', 'Value', 0, 'ValueChangedFcn', @(src, event) updateFromRad(i));
-    radFields{i}.Layout.Row = row; radFields{i}.Layout.Column = 2;
+    radFields{idx} = uieditfield(cg, 'numeric', 'Value', 0, ...
+        'ValueChangedFcn', @(src, event) updateFromRad(idx));
+    radFields{idx}.Layout.Row = row; radFields{idx}.Layout.Column = 2;
 
-    degFields{i} = uieditfield(cg, 'numeric', 'Value', 0, ...
-        'ValueChangedFcn', @(src, event) updateFromDeg(i));
-    degFields{i}.Layout.Row = row; degFields{i}.Layout.Column = 3;
+    degFields{idx} = uieditfield(cg, 'numeric', 'Value', 0, ...
+        'ValueChangedFcn', @(src, event) updateFromDeg(idx));
+    degFields{idx}.Layout.Row = row; degFields{idx}.Layout.Column = 3;
 end
 
 % Dynamics fields
 mFields = cell(1,3);
+defaultMasses = [d.M1, d.M2, d.M3];
 for i = 1:3
-    row = 2 + i;
-    lblM = uilabel(cg, 'Text', sprintf('M%d', i), 'HorizontalAlignment', 'right');
+    idx = i;
+    row = 2 + idx;
+    lblM = uilabel(cg, 'Text', sprintf('M%d', idx), 'HorizontalAlignment', 'right');
     lblM.Layout.Row = row; lblM.Layout.Column = 4;
-    mFields{i} = uieditfield(cg, 'numeric', 'Value', 0);
-    mFields{i}.Layout.Row = row; mFields{i}.Layout.Column = 5;
+    mFields{idx} = uieditfield(cg, 'numeric', 'Value', defaultMasses(idx), ...
+        'ValueChangedFcn', @(src, event) updateMassFromUI());
+    mFields{idx}.Layout.Row = row; mFields{idx}.Layout.Column = 5;
 end
 
 % IK Target Section
@@ -106,17 +117,16 @@ btnSolve.Layout.Row = 10; btnSolve.Layout.Column = [4 5];
 btnAnimate = uibutton(cg, 'Text', 'Animate', 'ButtonPushedFcn', @(~,~) onAnimateIK());
 btnAnimate.Layout.Row = 11; btnAnimate.Layout.Column = [4 5];
 
-% Matrices Display Section
-addHeader(cg, 'Transformation', 14, [1 3]);
-addHeader(cg, 'Jacobian', 14, [4 5]);
+displayGrid = uigridlayout(controlLayout, [1 3]);
+displayGrid.Layout.Row = 2;
+displayGrid.Layout.Column = 1;
+displayGrid.ColumnWidth = {'1x', '1x', '1x'};
+displayGrid.ColumnSpacing = 8;
+displayGrid.Padding = [0 0 0 0];
 
-t04Display = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
-t04Display.Layout.Row = 15;
-t04Display.Layout.Column = [1 3];
-
-jacDisplay = uitextarea(cg, 'Editable', 'off', 'FontName', 'monospaced', 'FontSize', 10);
-jacDisplay.Layout.Row = 15;
-jacDisplay.Layout.Column = [4 5];
+t04Display = addDisplayPanel(displayGrid, 'Transformation', 1);
+jacDisplay = addDisplayPanel(displayGrid, 'Jacobian', 2);
+dynDisplay = addDisplayPanel(displayGrid, 'Tau / Terms', 3);
 
 % Initial Sync
 syncUI();
@@ -134,6 +144,16 @@ updateRobotPlot();
         val = degFields{idx}.Value;
         radFields{idx}.Value = deg2rad(val);
         updateRobotFromUI();
+    end
+
+    function updateMassFromUI()
+        try
+            applyMassInputs();
+            updateRobotPlot();
+        catch ME
+            uialert(fig, ME.message, 'Dynamics Input Error');
+            syncUI();
+        end
     end
 
     function onWindowKeyPress(event)
@@ -170,10 +190,8 @@ updateRobotPlot();
             radFields{4}.Value];
 
         try
+            applyMassInputs();
             d.setJointAngles(thetas);
-            d.M1 = mFields{1}.Value;
-            d.M2 = mFields{2}.Value;
-            d.M3 = mFields{3}.Value;
             syncUI(); % Keep IK fields in sync with manual joint movement
             updateRobotPlot();
         catch ME
@@ -188,6 +206,10 @@ updateRobotPlot();
         for j = 1:4
             radFields{j}.Value = thetas(j);
             degFields{j}.Value = rad2deg(thetas(j));
+        end
+
+        for j = 1:3
+            mFields{j}.Value = d.(['M' num2str(j)]);
         end
 
         % Sync IK target fields
@@ -228,11 +250,16 @@ updateRobotPlot();
 
         % Update T04 Display
         T04 = d.transform(1,4);
-        t04Display.Value = formattedDisplayText(T04);
+        setTextAreaContent(t04Display, formattedDisplayText(T04));
 
         % Update Jacobian Display
         J = d.jacobian();
-        jacDisplay.Value = formattedDisplayText(J);
+        setTextAreaContent(jacDisplay, formattedDisplayText(J));
+
+        % Update Dynamics Display using the current configuration and UI masses.
+        [tau, terms] = d.inverseDynamics();
+        dynText = formatDynamicsDisplay(tau, terms);
+        setTextAreaContent(dynDisplay, dynText);
 
         drawnow limitrate;
     end
@@ -241,6 +268,7 @@ updateRobotPlot();
         target = [xIn.Value, yIn.Value, zIn.Value];
         isUp = strcmpi(elbowMode.Value, 'up');
         try
+            applyMassInputs();
             d.setEndEffector(target, isUp);
             syncUI();
             updateRobotPlot();
@@ -252,6 +280,7 @@ updateRobotPlot();
     function onAnimateIK()
         target = [xIn.Value, yIn.Value, zIn.Value];
         isUp = strcmpi(elbowMode.Value, 'up');
+        applyMassInputs();
 
         % Use a temporary dobot to calculate target joint angles
         temp_robot = dobot();
@@ -283,9 +312,9 @@ updateRobotPlot();
         btnAnimate.Enable = 'off';
 
         % Run the animation loop
-        for i = 1:num_steps
+        for stepIdx = 1:num_steps
             try
-                d.setJointAngles(thetas_traj(i, :));
+                d.setJointAngles(thetas_traj(stepIdx, :));
                 syncUI();
                 updateRobotPlot();
                 pause(1/fps); % Control animation speed
@@ -308,5 +337,56 @@ updateRobotPlot();
         else
             h.Layout.Column = [1 3];
         end
+    end
+
+    function ta = addDisplayPanel(parent, titleText, col)
+        panel = uipanel(parent, 'Title', titleText);
+        panel.Layout.Row = 1;
+        panel.Layout.Column = col;
+
+        panelGrid = uigridlayout(panel, [1 1]);
+        panelGrid.Padding = [4 4 4 4];
+        panelGrid.RowHeight = {'1x'};
+        panelGrid.ColumnWidth = {'1x'};
+
+        ta = uitextarea(panelGrid, 'Editable', 'off', ...
+            'FontName', 'monospaced', 'FontSize', 9);
+        ta.Layout.Row = 1;
+        ta.Layout.Column = 1;
+    end
+
+    function applyMassInputs()
+        d.M1 = mFields{1}.Value;
+        d.M2 = mFields{2}.Value;
+        d.M3 = mFields{3}.Value;
+        d.validateMass(d.M1, 'M1');
+        d.validateMass(d.M2, 'M2');
+        d.validateMass(d.M3, 'M3');
+    end
+
+    function setTextAreaContent(area, content)
+        area.Value = splitlines(string(content));
+    end
+
+    function txt = formatDynamicsDisplay(tau, terms)
+        txt = sprintf([ ...
+            'tau =\n%s\n\n' ...
+            'M =\n%s\n\n' ...
+            'coriolis =\n%s\n\n' ...
+            'gravity =\n%s\n\n' ...
+            'q =\n%s\n\n' ...
+            'qd =\n%s\n\n' ...
+            'qdd =\n%s'], ...
+            roundedDisplayText(tau), ...
+            roundedDisplayText(terms.M), ...
+            roundedDisplayText(terms.coriolis), ...
+            roundedDisplayText(terms.gravity), ...
+            roundedDisplayText(terms.q), ...
+            roundedDisplayText(terms.qd), ...
+            roundedDisplayText(terms.qdd));
+    end
+
+    function txt = roundedDisplayText(value)
+        txt = formattedDisplayText(round(value, 3));
     end
 end
