@@ -47,18 +47,24 @@ classdef dobot < handle
     end
 
     methods
-        function obj = dobot(theta1, theta2, theta3, theta4)
+        function obj = dobot(theta1, theta2, theta3, theta4, m1, m2, m3)
             %DOBOT Construct an instance of this class
             arguments
                 theta1 (1,1) double = 0
                 theta2 (1,1) double = 0
                 theta3 (1,1) double = 0
                 theta4 (1,1) double = 0
+                m1 (1,1) double = 0.5
+                m2 (1,1) double = 0.5
+                m3 (1,1) double = 0.5
             end
             obj.Theta1 = theta1;
             obj.Theta2 = theta2;
             obj.Theta3 = theta3;
             obj.Theta4 = theta4;
+            obj.M1 = m1;
+            obj.M2 = m2;
+            obj.M3 = m3;
         end
 
         function E = elbowUp(obj)
