@@ -35,14 +35,6 @@ classdef dobot < handle
         M2   % equivalent mass for forearm
         M3   % equivalent mass for wrist / tool / payload
 
-        lc2 = 0.075  % COM of upper arm from shoulder
-        lc3 = 0.075  % COM of forearm from elbow
-
-        I2   % inertia of upper arm about COM
-        I3   % inertia of forearm about COM
-        J0 = 1e-3    % base rotary inertia
-        J4 = 1e-4    % wrist/tool rotary inertia
-
         g = 9.81
     end
 
@@ -65,6 +57,35 @@ classdef dobot < handle
             obj.M1 = m1;
             obj.M2 = m2;
             obj.M3 = m3;
+        end
+
+        function lc2 = lc2(obj)
+            % lc2 is the distance from the shoulder joint to the COM of the upper arm
+            lc2 = 0.075;
+        end
+        function lc3 = lc3(obj)
+            % lc3 is the distance from the elbow joint to the COM of the forearm
+            lc3 = 0.075;
+        end
+
+        function I2 = I2(obj)
+            % I2 is the inertia of the upper arm about its center of mass
+            I2 = 0.01;
+        end
+
+        function I3 = I3(obj)
+            % I3 is the inertia of the forearm about its center of mass
+            I3 = 0.01;
+        end
+
+        function J0 = J0(obj)
+            % J0 is the base rotary inertia
+            J0 = 1e-3;
+        end
+
+        function J4 = J4(obj)
+            % J4 is the wrist/tool rotary inertia
+            J4 = 1e-4;
         end
 
         function E = elbowUp(obj)
