@@ -72,7 +72,7 @@
     \centering
     \vspace{-1.6cm}
     \includegraphics[width=0.58\textwidth]{figures/fig1_dobot_display_image.jpg}
-    \caption{Dobot Magician Lite robot arm used as the subject of this project report.}
+    \caption{Dobot Magician Lite, taken from \cite{dobotManual}}
     \label{fig:dobot_main}
 \end{figure}
 
@@ -81,15 +81,16 @@
 \vspace{-0.3cm}
 
 \vspace{0.2cm}
-This project presents the kinematic modelling and MATLAB-based analysis of the Dobot Magician Lite robot arm. A simplified equivalent serial model was developed to represent the physical robot while preserving the essential geometric effect of its parallelogram mechanism. Using the Denavit--Hartenberg convention, the forward kinematics were derived analytically, and a geometric inverse-kinematics method was formulated to recover joint variables from target Cartesian positions. A Jacobian-based analysis was then used to identify singular configurations and to interpret the manipulator's local motion behaviour. The resulting model was implemented and validated in MATLAB through forward-kinematics checks, inverse-kinematics reconstruction, singularity detection, and unreachable-target testing. The results show that the developed framework provides a consistent and practical basis for analysing the motion of the Dobot Magician Lite and can serve as a foundation for future extensions involving dynamics, control, and trajectory planning.
+This project presents the kinematic modelling and MATLAB-based analysis of the
+Dobot Magician Lite robot arm with a MATLAB implementation of the model.
 
 \section{Introduction}
+
 Robot manipulators are widely used across industrial, medical and educational
 domains because of their precision, repeatability and programmability
 \cite{siciliano2009}. Common applications include pick-and-place operations,
-assembly lines, welding, painting, and laboratory automation. In educational
-environments, robotic arms such as the Dobot Magician Lite are used for
-teaching robotics concepts including kinematics, control, and programming
+assembly lines, and laboratory automation. In educational environments, robotic
+arms such as the Dobot Magician Lite are used for teaching robotics concepts
 \cite{siciliano2009}.
 
 The Dobot Magician Lite is a desktop serial manipulator consisting of four
@@ -483,11 +484,20 @@ The inverse kinematics solution was derived by:
 This approach was preferred over numerical methods due to its computational efficiency, analytical clarity, and suitability for real-time applications.
 
 \subsection{Dynamic Modelling Approach}
-The dynamic behaviour of the manipulator was considered using the standard rigid-body robot dynamics formulation \cite{siciliano2009, spong2006}
+The dynamic behaviour of the manipulator was considered using the standard
+rigid-body robot dynamics formulation \cite{siciliano2009, spong2006}
 \[ \tau = M(q)\ddot{q} + C(q, \dot{q})\dot{q} + G(q) \]
-where $\tau$ is the vector of joint torques, $M(q)$ is the inertia matrix, $C(q, \dot{q})\dot{q}$ represents Coriolis and centrifugal effects, and $G(q)$ is the gravity vector.
+where $\tau$ is the vector of joint torques, $M(q)$ is the inertia matrix, $C(q,
+\dot{q})\dot{q}$ represents Coriolis and centrifugal effects, and $G(q)$ is the
+gravity vector.
 
-In the present project, the dynamic equations were incorporated at a conceptual and modelling level to extend the kinematic model developed in MATLAB. However, a complete high-fidelity dynamic implementation was limited by the lack of detailed physical parameters such as link masses, mass centres, and inertia tensors from the manufacturer documentation \cite{siciliano2009}. Therefore, the work focused on establishing the dynamic form of the equations and explaining how such terms would be integrated into the MATLAB model for future extension.
+In the present project, the dynamic equations were incorporated at a conceptual
+and modelling level to extend the kinematic model developed in MATLAB. However,
+a complete high-fidelity dynamic implementation was limited by the lack of
+detailed physical parameters such as link masses, mass centres, and inertia
+tensors from the manufacturer documentation \cite{siciliano2009}. Therefore, the
+work focused on establishing the dynamic form of the equations and explaining
+how such terms would be integrated into the MATLAB model for future extension.
 
 \subsection{MATLAB Implementation}
 
