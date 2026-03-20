@@ -93,51 +93,13 @@ assembly lines, and laboratory automation. In educational environments, robotic
 arms such as the Dobot Magician Lite are used for teaching robotics concepts
 \cite{siciliano2009}.
 
-The Dobot Magician Lite is a desktop serial manipulator consisting of four
-revolute joints (J1--J4), forming an articulated robotic arm structure
-\cite{siciliano2009}. It operates in both joint and Cartesian coordinate
-systems, enabling flexible motion control and trajectory planning. The robot
-supports multiple motion modes \cite{dobotManual} such as point-to-point (PTP),
-linear (MOVL), and arc-based trajectories, making it suitable for both academic
-and practical applications \cite{siciliano2009}.
-
-From a classification perspective, the Dobot Magician Lite can be categorized
-as a serial articulated robot arm. Compared to parallel manipulators, serial
-manipulators offer a larger workspace and greater flexibility, but may suffer
-from lower stiffness and accumulated positioning errors. Compared to SCARA
-robots, the Dobot provides greater vertical flexibility but may have reduced
-speed and precision in planar tasks.
-
-The Dobot Magician Lite is particularly suitable for educational use because of
-its low cost, ease of programming and compact desktop form \cite{dobotManual}.
-However, limitations include restricted payload capacity (250 g), limited reach
-(340 mm), and lower industrial-grade precision compared to high-end robotic
-systems \cite{dobotManual}.
+The Dobot Magician Lite is a desktop serial manipulator, particularly suited for
+educational use, consisting of four revolute joints (J1--J4), forming an
+articulated robotic arm structure \cite{siciliano2009}. 
 
 The aim of this project was to develop an analytical and MATLAB-based model of
 the Dobot Magician Lite and to evaluate its forward kinematics, inverse
 kinematics, Jacobian, singularities and validation behaviour.
-
-\begin{center}
-{\large\bfseries List of Symbols}
-\end{center}
-\vspace{-0.15cm}
-
-\begin{center}
-\renewcommand{\arraystretch}{1.12}
-\begin{tabular}{>{\centering\arraybackslash}p{2.4cm} p{8.6cm}}
-\toprule
-\textbf{Symbol} & \textbf{Meaning} \\
-\midrule
-$\theta_1$ & Base rotation angle \\
-$\theta_2$ & Shoulder joint angle \\
-$\theta_3$ & Elbow joint angle \\
-$\theta_4$ & End-effector rotation angle \\
-$L_1, L_2, L_3$ & Main arm link lengths \\
-\bottomrule
-\end{tabular}
-\end{center}
-\vspace{0.1cm}
 
 \section{Kinematic Modelling}
 \label{sec:kinematic_modelling}
@@ -163,16 +125,17 @@ preserve the geometric constraint.
 \end{figure}
 \vspace{-0.25cm}
 
-\subsection{Denavit--Hartenberg parameterisation}
+\subsection{Denavit--Hartenberg Parameterisation}
 
-\begin{figure}[htbp]
-    \centering
-   % \vspace{-0.1cm}
-    \includegraphics[width=0.72\textwidth]{figures/fig3_joint_coordinate_system.jpg}
-    \caption{Joint coordinate system of the Dobot Magician Lite showing the four revolute joints considered in the kinematic model. Adapted from \cite{dobotManual}.}
-   % \vspace{-0.45cm}
-\end{figure}
-\vspace{-0.25cm}
+The coordinate frames were assigned according to the standard
+Denavit--Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
+with the axis of rotation of the corresponding joint, while each $x$-axis was
+defined along the common normal between adjacent joint axes. 
+
+The physical robot is a series of 4-bar linkages that form a closed kinematic
+chain. To simplify this, we have chosen to model the robot as a series of
+revolute joints, and have included a passive joint P that keeps the end effector
+parallel to the ground.
 
 \begin{figure}[htbp]
     \centering
@@ -183,7 +146,32 @@ preserve the geometric constraint.
 \end{figure}
 \vspace{-0.2cm}
 
-The Denavit--Hartenberg parameter table derived from the frame assignment is given below.
+\begin{center}
+{\large\bfseries List of Symbols}
+\end{center}
+\vspace{-0.15cm}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{>{\centering\arraybackslash}p{2.4cm} p{8.6cm}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$\theta_1$ & Base rotation angle \\
+$\theta_2$ & Shoulder joint angle \\
+$\theta_3$ & Elbow joint angle \\
+$\theta_4$ & End-effector rotation angle \\
+$L_1, L_2, L_3$ & Main arm link lengths \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{0.1cm}
+
+
+The Denavit--Hartenberg parameter table derived from the frame assignment is
+given below. Note that the final rotation into the end effector framm $\alpha_3$
+happens at the end of the passive link, so the passive link's rotation still
+applies to the frame from joint 3.
 
 \begin{table}[htbp]
 \centering
@@ -195,7 +183,7 @@ The Denavit--Hartenberg parameter table derived from the frame assignment is giv
 1 - Base & 0 & $90^\circ$ & 150 & $\theta_1$ \\
 2 - Rear Arm & 150 & $0^\circ$ & 0 & $\theta_2$ \\
 3 - Fore Arm & 150 & $0^\circ$ & 0 & $\theta_3$ \\
-P - Uncontrollable link & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
+P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 4 - End effector & 0 & $0^\circ$ & 0 & $\theta_4$ \\
 \bottomrule
 \end{tabular}
@@ -203,19 +191,6 @@ P - Uncontrollable link & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 \label{tab:dh_parameters}
 \end{table}
 
-The coordinate frames were assigned according to the standard
-Denavit--Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
-with the axis of rotation of the corresponding joint, while each $x$-axis was
-defined along the common normal between adjacent joint axes. The physical robot
-has four revolute joints; however, an additional passive transformation was
-introduced only to capture the parallelogram constraint that keeps the
-end-effector orientation approximately consistent. This passive term is not an
-independent joint and does not increase the number of actuated degrees of
-freedom \cite{craig2005}.
-
-The Denavit--Hartenberg convention provides a systematic framework for assigning
-link parameters and deriving homogeneous transformations for serial manipulators
-\cite{craig2005, denavit1955}.
 
 \subsection{Forward kinematics}
 The forward kinematics of the Dobot Magician Lite were derived using the
@@ -511,8 +486,8 @@ the model and unit tests \(dobot_tests.m\) were added to ensure the model stayed
 accurate over time.
 
 \subsection{AI}
-AI tools, specifically Gemini \& ChatGPT, were used to assist in generating Matlab code for
-the UI and unit tests. The dobot.m Matlab class was written by hand as that
+AI tools, specifically Gemini \& ChatGPT, were used to assist in generating MATLAB code for
+the UI and unit tests. The dobot.m MATLAB class was written by hand as that
 contains the mathematical model.
 
 \section{Results and Validation}
