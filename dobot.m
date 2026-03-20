@@ -25,10 +25,10 @@ classdef dobot < handle
         L2 = 0.15 % Link between joints 1 and 2
         L3 = 0.15 % Link between joints 2 and 3
         JointLimits = [
-            deg2rad(-135), deg2rad(135); % theta1
-            deg2rad(-5),   deg2rad(80);  % theta2
-            deg2rad(-85),  deg2rad(10);  % theta3
-            deg2rad(-145), deg2rad(145) % theta4
+            deg2rad(-135), deg2rad(135) % theta1
+            deg2rad(-5),   deg2rad(80)  % theta2
+            deg2rad(-85),  deg2rad(10)  % theta3
+            deg2rad(-135), deg2rad(135) % theta4
             ];
         % Dynamic parameters arbitraly chosen
         M1   % equivalent mass for upper arm
@@ -413,7 +413,7 @@ classdef dobot < handle
         end
 
         function x = parseDynamicState(obj, x, name)
-            %Validates the dynamic states and fill q or q derivations if needed 
+            %Validates the dynamic states and fill q or q derivations if needed
             if isempty(x)
                 switch name
                     case 'q'
