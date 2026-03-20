@@ -328,15 +328,15 @@ how such terms would be integrated into the MATLAB model for future extension.
 The robot model was implemented as described in
 Section~\ref{sec:kinematic_modelling} as a MATLAB class with an API allowing for
 moving the joint angles, setting the end effect location in 3D space and viewing
-the transformation matrices, jacobian etc. See dobot.m for the full implementation.
+the transformation matrices, jacobian etc. See dobot.m \cite{githubDobot} for the full implementation.
 
-A UI was built (see Figure~\ref{fig:ui_robot}) to allow users to interact with
-the model and unit tests \(dobot_tests.m\) were added to ensure the model stayed
+A UI \cite{githubUIRobot} was built (see Figure~\ref{fig:ui_robot}) to allow users to interact with
+the model and unit tests (dobot\_tests.m \cite{githubDobotTests}) were added to ensure the model stayed
 accurate over time.
 
 \subsection{AI}
 AI tools, specifically Gemini \& ChatGPT, were used to assist in generating MATLAB code for
-the UI and unit tests. The dobot.m MATLAB class was written by hand as that
+the UI and unit tests. The dobot.m \cite{githubDobot} MATLAB class was written by hand as that
 contains the mathematical model.
 
 \section{Results and Validation}
