@@ -1,0 +1,68 @@
+\begin{tikzpicture}[>=stealth, scale=0.9, every node/.style={scale=0.9}]
+    \tikzset{
+        axis/.style={->, thick},
+        dashed axis/.style={->, thick, dashed},
+        dotted line/.style={thick, dotted}
+    }
+    \def\cylradius{0.4}
+    \def\cylheight{1.2}
+
+    \def\vertcyl{
+        \begin{scope}
+            \draw[fill=white] (-\cylradius, -\cylheight/2) arc (180:360:\cylradius cm and 0.15cm) -- (\cylradius, \cylheight/2) arc (360:180:\cylradius cm and 0.15cm) -- cycle;
+            \draw[fill=white] (0, \cylheight/2) ellipse (\cylradius cm and 0.15cm);
+        \end{scope}
+    }
+
+    \coordinate (O1) at (0, 0);
+    \coordinate (O2) at (0, 4);
+    \coordinate (O3) at (4, 7);
+    \coordinate (O4) at (8, 3.5);
+
+    % O1
+    \begin{scope}[shift={(O1)}]
+        \vertcyl
+        \draw[axis] (0,0) -- (1.5,0) node[right] {x1};
+        \draw[axis] (0,0) -- (-1,-1) node[left] {y1};
+        \draw[axis] (0,0) -- (0,2) node[left] {z1};
+        \draw[dotted line] (0,2) -- (O2);
+        \draw[->] (-0.3, 1.5) arc (180:400:0.4 and 0.15);
+        \node at (0.8, 1.6) {Theta 1};
+    \end{scope}
+
+    % O2
+    \begin{scope}[shift={(O2)}]
+        \begin{scope}[rotate=-45]
+            \vertcyl
+        \end{scope}
+        \draw[axis] (0,0) -- (1.5,0) node[right] {x2};
+        \draw[axis] (0,0) -- (0,-1.5) node[right] {y2};
+        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {z2};
+        \draw[->] (-1.2, -0.6) arc (135:360:0.4 and 0.2);
+        \node at (-1.8, -0.4) {Theta 2};
+        \draw[dotted line] (0,0) -- (O3) node[midway, below right] {a2};
+    \end{scope}
+
+    % O3
+    \begin{scope}[shift={(O3)}]
+        \begin{scope}[rotate=-45]
+            \vertcyl
+        \end{scope}
+        \draw[axis] (0,0) -- (1.5,0) node[right] {x3};
+        \draw[axis] (0,0) -- (0,-1.5) node[right] {y3};
+        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {z3};
+        \draw[->] (-1.2, -0.6) arc (135:360:0.4 and 0.2);
+        \node at (-1.8, -0.4) {Theta 3};
+        \draw[dotted line] (0,0) -- (O4) node[midway, above right] {a3};
+    \end{scope}
+
+    % O4
+    \begin{scope}[shift={(O4)}]
+        \vertcyl
+        \draw[axis] (0,0) -- (1.5,0) node[right] {x4};
+        \draw[axis] (0,0) -- (-1.5,-1.5) node[below left] {y4};
+        \draw[dashed axis] (0,0) -- (0,-2) node[right] {z4};
+        \draw[->] (0.3, -1.2) arc (0:220:0.4 and 0.15);
+        \node at (0.8, -1.0) {Theta 4};
+    \end{scope}
+\end{tikzpicture}
