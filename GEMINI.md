@@ -90,4 +90,8 @@ pdflatex report.tex && bibtex report && pdflatex report.tex && pdflatex report.t
 - **Units:** Radians for internal logic; Degrees for UI/Display. Distances in Metres.
 - **Coordinate Frames:** Standard DH conventions.
 - **Testing:** New features must be verified in `dobot_tests.m` and logged via `dobot_test_summary.m`.
+<<<<<<< HEAD
 - **UI Formatting:** Do not use `evalc(disp(...))` directly in UI update loops. Instead, use the builtin MATLAB function `formattedDisplayText` to sanitize and format matrix/object output for display.
+=======
+- **UI Formatting:** Do not use `evalc(disp(...))` directly in UI update loops. Instead, use the `formattedDisplayText` helper function to sanitize and format matrix/object output for display.
+>>>>>>> ca4345a (Fix gemini merge)
