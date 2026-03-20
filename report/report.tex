@@ -109,60 +109,41 @@ The kinematic model therefore treats the robot as a 4R serial manipulator, with
 $\theta_1$ describing base rotation, $\theta_2$ and $\theta_3$ defining planar
 arm motion, and $\theta_4$ controlling tool orientation.
 
-Although the physical robot includes a parallelogram mechanism
-\cite{dobotManual} that helps maintain end-effector orientation, the kinematic
-model used in this work represents that behaviour through an equivalent passive
-transformation $(-\theta_3 - \theta_2)$. This passive element is not treated as
-an additional actuated degree of freedom, but only as a modelling device used to
-preserve the geometric constraint.
+\subsubsection{The Passive Joint}
+\label{subsec:passive_joint}
+
+The physical robot is a series of 4-bar linkages \cite{cmuSimulation2022}. 
+
+The passive joint P is introduced to maintain the constraint that the
+end-effector remains parallel to the ground. This is achieved by defining the
+passive joint angle as $-\theta_3-\theta_2$.
+
+The final rotation into the end effector frame $\alpha_3$
+happens at the end of the passive link, so the passive link's rotation still
+applies to the frame from joint 3 as shown in Table~\ref{tab:dh_parameters}.
+
+
+\subsection{Denavit--Hartenberg Parameterisation}
 
 \begin{figure}[htbp]
     \centering
    % \vspace{-0.1cm}
     \input{figures/dh_frame.tex}
     \caption{Denavit--Hartenberg frame assignment used for the kinematic
-    modelling of the Dobot Magician Lite manipulator.}
+    modelling of the Dobot Magician Lite manipulator. $z_2$ and $z_3$ are coming
+    out of the page.}
    % \vspace{-0.45cm}
 \end{figure}
 \vspace{-0.2cm}
 
-\subsection{Denavit--Hartenberg Parameterisation}
 
 The coordinate frames were assigned according to the standard
 Denavit--Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
 with the axis of rotation of the corresponding joint, while each $x$-axis was
 defined along the common normal between adjacent joint axes. 
 
-The physical robot is a series of 4-bar linkages \cite{cmuSimulation2022} that
-form a closed kinematic chain. To simplify this, we have chosen to model the
-robot as a series of revolute joints, and have included a passive joint P that
-keeps the end effector parallel to the ground.
-
-
-\begin{center}
-{\large\bfseries List of Symbols}
-\end{center}
-\vspace{-0.15cm}
-
-\begin{center}
-\renewcommand{\arraystretch}{1.12}
-\begin{tabular}{>{\centering\arraybackslash}p{2.4cm} p{8.6cm}}
-\toprule
-\textbf{Symbol} & \textbf{Meaning} \\
-\midrule
-$\theta_1$ & Base rotation angle \\
-$\theta_2$ & Shoulder joint angle \\
-$\theta_3$ & Elbow joint angle \\
-$\theta_4$ & End-effector rotation angle \\
-$L_1, L_2, L_3$ & Main arm link lengths \\
-\bottomrule
-\end{tabular}
-\end{center}
-\vspace{0.1cm}
-
-
 The Denavit--Hartenberg parameter table derived from the frame assignment is
-given below. 
+
 \begin{table}[htbp]
 \centering
 \renewcommand{\arraystretch}{1.2}
@@ -181,16 +162,6 @@ P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 \label{tab:dh_parameters}
 \end{table}
 
-\subsubsection{The Passive Joint}
-\label{subsec:passive_joint}
-
-The passive joint P is introduced to maintain the constraint that the
-end-effector remains parallel to the ground. This is achieved by defining the
-passive joint angle as $-\theta_3-\theta_2$.
-
-The final rotation into the end effector frame $\alpha_3$
-happens at the end of the passive link, so the passive link's rotation still
-applies to the frame from joint 3.
 
 \subsection{Forward kinematics}
 
@@ -263,28 +234,19 @@ This expression shows that singularities occur when either $\sin(\theta_3) = 0$ 
 
 \subsection{Inverse kinematics}
 
-The inverse kinematics problem was solved using a geometric approach, because it
-provides closed-form solutions and is well suited to two-link planar arm
-structures \cite{mathworks2023, craig2005}.
-
 \begin{figure}[H]
     \centering
     \input{figures/inverse_xy_plane.tex}
     \caption{Top-view geometry used to compute the base joint angle $\theta_1$.}
 \end{figure}
 
-The base joint angle was obtained from the top-view projection of the target
-position:
+The base joint angle is:
 \[ \theta_1 = \operatorname{atan2}(y, x) \]
 
-The radial distance in the horizontal plane is then $r = \sqrt{x^2 + y^2}$. The
-remaining problem is reduced to a planar two-link geometry in the $R$--$Z$ plane
-\cite{craig2005}. The function $\operatorname{atan2}(y,x)$ is used for the base
-joint angle because it returns the correct angular quadrant from the Cartesian
-coordinates and is therefore more robust than using a simple inverse tangent
-ratio alone \cite{mathworks2023}. A geometric inverse-kinematics method was
-selected because it provides closed-form solutions and is well suited to
-two-link planar arm structures \cite{mathworks2023, craig2005}.
+The remaining problem is reduced to a planar two-link geometry in the $R$--$Z$
+plane \cite{craig2005}. The function $\operatorname{atan2}(y,x)$ is used because
+it returns the correct angular quadrant from the Cartesian coordinates
+\cite{mathworks2023atan2}. 
 
 \begin{figure}[H]
     \centering
@@ -302,6 +264,7 @@ For $\theta_3$, the forearm angle, we have two cases as well: \textbf{elbow-up} 
 
 Given
 \begin{align}
+    r^2 = x^2 + y^2 \\
     z' = z - L_1 \\
     r^2 = L_2 cos(\theta_2) + L_3 cos(\theta_2 + \theta_3) \\
     z' = L_2 sin(\theta_2) + L_3 sin(\theta_2 + \theta_3)
@@ -338,11 +301,6 @@ describing the spatial relationship between adjacent links. Each joint was
 modelled as a revolute joint, and the robot was approximated as an open
 kinematic chain, despite the physical presence of a four-bar linkage mechanism.
 
-A passive link was introduced in the model to maintain the constraint that the
-end-effector remains parallel to the ground. This simplification allows the
-system to be analysed using standard serial manipulator techniques while
-preserving key geometric behaviour.
-
 \subsection{Inverse Kinematics Strategy}
 A geometric approach was selected for solving the inverse kinematics problem.
 This method was chosen due to the relatively simple structure of the robot and
@@ -350,7 +308,8 @@ the availability of clear geometric relationships between joint angles and
 end-effector position.
 
 This approach was preferred over numerical methods due to its computational
-efficiency, analytical clarity, and suitability for real-time applications.
+efficiency, analytical clarity, and suitability for real-time
+applications\cite{mathworks2023, craig2005}.
 
 \subsection{Dynamic Modelling Approach}
 The dynamic behaviour of the manipulator was considered using the standard
