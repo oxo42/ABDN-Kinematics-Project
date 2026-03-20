@@ -118,12 +118,13 @@ preserve the geometric constraint.
 
 \begin{figure}[htbp]
     \centering
-    \vspace{-0.15cm}
-    \includegraphics[width=0.92\textwidth]{figures/appearance_magician_lite.jpg}
-    \caption{Dobot Magician Lite. Taken from \cite{dobotManual}.}
-    \vspace{-0.45cm}
+   % \vspace{-0.1cm}
+    \input{figures/dh_frame.tex}
+    \caption{Denavit--Hartenberg frame assignment used for the kinematic
+    modelling of the Dobot Magician Lite manipulator.}
+   % \vspace{-0.45cm}
 \end{figure}
-\vspace{-0.25cm}
+\vspace{-0.2cm}
 
 \subsection{Denavit--Hartenberg Parameterisation}
 
@@ -137,15 +138,6 @@ chain. To simplify this, we have chosen to model the robot as a series of
 revolute joints, and have included a passive joint P that keeps the end effector
 parallel to the ground.
 
-\begin{figure}[htbp]
-    \centering
-   % \vspace{-0.1cm}
-    \input{figures/dh_frame.tex}
-    \caption{Denavit--Hartenberg frame assignment used for the kinematic
-    modelling of the Dobot Magician Lite manipulator.}
-   % \vspace{-0.45cm}
-\end{figure}
-\vspace{-0.2cm}
 
 \begin{center}
 {\large\bfseries List of Symbols}
@@ -170,7 +162,7 @@ $L_1, L_2, L_3$ & Main arm link lengths \\
 
 
 The Denavit--Hartenberg parameter table derived from the frame assignment is
-given below. Note that the final rotation into the end effector framm $\alpha_3$
+given below. Note that the final rotation into the end effector frame $\alpha_3$
 happens at the end of the passive link, so the passive link's rotation still
 applies to the frame from joint 3.
 

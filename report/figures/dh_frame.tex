@@ -7,6 +7,7 @@
     \def\cylradius{0.4}
     \def\cylheight{1.2}
 
+    % Standard Cylinder along the vertical axis of the scope
     \def\vertcyl{
         \begin{scope}
             \draw[fill=white] (-\cylradius, -\cylheight/2) arc (180:360:\cylradius cm and 0.15cm) -- (\cylradius, \cylheight/2) arc (360:180:\cylradius cm and 0.15cm) -- cycle;
@@ -19,50 +20,56 @@
     \coordinate (O3) at (4, 7);
     \coordinate (O4) at (8, 3.5);
 
-    % O1
+    % O1: Base Joint (theta1)
     \begin{scope}[shift={(O1)}]
         \vertcyl
-        \draw[axis] (0,0) -- (1.5,0) node[right] {x1};
-        \draw[axis] (0,0) -- (-1,-1) node[left] {y1};
-        \draw[axis] (0,0) -- (0,2) node[left] {z1};
-        \draw[dotted line] (0,2) -- (O2);
-        \draw[->] (-0.3, 1.5) arc (180:400:0.4 and 0.15);
-        \node at (0.8, 1.6) {Theta 1};
+        \draw[axis] (0,0) -- (1.5,0) node[right] {$x_1$};
+        \draw[axis] (0,0) -- (-1,-1) node[below left] {$y_1$};
+        \draw[axis] (0,0) -- (0,2) node[above left] {$z_1$};
+        \draw[dotted line] (0,0) -- (O2) node[midway, right] {$d_1$};
+        % Theta 1 arc (horizontal plane)
+        \draw[->] (0.7, 0) arc (0:-135:0.7 and 0.3);
+        \node at (1.0, -0.3) {$\theta_1$};
     \end{scope}
 
-    % O2
+    % O2: Shoulder Joint (theta2)
     \begin{scope}[shift={(O2)}]
-        \begin{scope}[rotate=-45]
+        \begin{scope}[rotate=135] % Aligns cylinder with z2 axis
             \vertcyl
+            % Theta 2 arc wrapping around z2
+            \draw[->] (0.6, 0.8) arc (0:260:0.6 and 0.2);
         \end{scope}
-        \draw[axis] (0,0) -- (1.5,0) node[right] {x2};
-        \draw[axis] (0,0) -- (0,-1.5) node[right] {y2};
-        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {z2};
-        \draw[->] (-1.2, -0.6) arc (135:360:0.4 and 0.2);
-        \node at (-1.8, -0.4) {Theta 2};
-        \draw[dotted line] (0,0) -- (O3) node[midway, below right] {a2};
+        \draw[axis] (0,0) -- (1.5,0) node[right] {$x_2$};
+        \draw[axis] (0,0) -- (0,-1.5) node[right] {$y_2$};
+        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {$z_2$};
+        \node at (-1.3, -0.3) {$\theta_2$};
+        \draw[dotted line] (0,0) -- (O3) node[midway, above left] {$a_2$};
     \end{scope}
 
-    % O3
+    % O3: Elbow Joint (theta3)
     \begin{scope}[shift={(O3)}]
-        \begin{scope}[rotate=-45]
+        \begin{scope}[rotate=135] % Aligns cylinder with z3 axis
             \vertcyl
+            % Theta 3 arc wrapping around z3
+            \draw[->] (0.6, 0.8) arc (0:260:0.6 and 0.2);
         \end{scope}
-        \draw[axis] (0,0) -- (1.5,0) node[right] {x3};
-        \draw[axis] (0,0) -- (0,-1.5) node[right] {y3};
-        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {z3};
-        \draw[->] (-1.2, -0.6) arc (135:360:0.4 and 0.2);
-        \node at (-1.8, -0.4) {Theta 3};
-        \draw[dotted line] (0,0) -- (O4) node[midway, above right] {a3};
+        \draw[axis] (0,0) -- (1.5,0) node[right] {$x_3$};
+        \draw[axis] (0,0) -- (0,-1.5) node[right] {$y_3$};
+        \draw[dashed axis] (0,0) -- (-1.5,-1.5) node[below left] {$z_3$};
+        \node at (-1.3, -0.3) {$\theta_3$};
+        \draw[dotted line] (0,0) -- (O4) node[midway, above right] {$a_3$};
     \end{scope}
 
-    % O4
+    % O4: Wrist Joint (theta4)
     \begin{scope}[shift={(O4)}]
-        \vertcyl
-        \draw[axis] (0,0) -- (1.5,0) node[right] {x4};
-        \draw[axis] (0,0) -- (-1.5,-1.5) node[below left] {y4};
-        \draw[dashed axis] (0,0) -- (0,-2) node[right] {z4};
-        \draw[->] (0.3, -1.2) arc (0:220:0.4 and 0.15);
-        \node at (0.8, -1.0) {Theta 4};
+        \begin{scope}[rotate=180] % Aligns cylinder with z4 (down)
+            \vertcyl
+        \end{scope}
+        \draw[axis] (0,0) -- (1.5,0) node[right] {$x_4$};
+        \draw[axis] (0,0) -- (-1.2,-1.2) node[below left] {$y_4$}; % Fixed for RHR: x(right) x y(out) = z(down)
+        \draw[dashed axis] (0,0) -- (0,-2) node[right] {$z_4$};
+        % Theta 4 arc (horizontal plane)
+        \draw[->] (0.7, 0) arc (0:-135:0.7 and 0.3);
+        \node at (1.0, -0.3) {$\theta_4$};
     \end{scope}
 \end{tikzpicture}
