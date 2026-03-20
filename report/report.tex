@@ -41,6 +41,10 @@
   {\normalfont\Large\bfseries\centering}
   {\thesection.}{0.5em}{\MakeUppercase}
 
+\titleformat{name=\section,numberless}
+  {\normalfont\Large\bfseries\centering}
+  {}{0pt}{\MakeUppercase}  
+
 \titleformat{\subsection}
   {\normalfont\large\bfseries}
   {\thesubsection}{0.75em}{}
@@ -77,7 +81,7 @@
 \end{figure}
 
 \vspace{0.3cm}
-\section*{Abstract}
+\section*{\makebox[1.2em][r]{\phantom{1.}}\hspace{0.5em}Abstract}
 \vspace{-0.3cm}
 
 \vspace{0.2cm}
@@ -99,7 +103,7 @@ articulated robotic arm structure \cite{siciliano2009}.
 
 The aim of this project was to develop an analytical and MATLAB-based model of
 the Dobot Magician Lite and to evaluate its forward kinematics, inverse
-kinematics, Jacobian, singularities and validation behaviour.
+kinematics, Jacobian, singularities, dynamic equations, and validation behaviour.
 
 \section{Kinematic Modelling}
 \label{sec:kinematic_modelling}
@@ -270,12 +274,6 @@ Given
     z' = L_2 sin(\theta_2) + L_3 sin(\theta_2 + \theta_3)
 \end{align}
 
-and the trig identities
-\begin{align}
-    \cos^2 \theta + \sin^2 \theta = 1 \\
-    \cos(a + b) = \cos a \cos b - \sin a \sin b
-\end{align}
-
 Adding $r^2$ and $z'^2$ and simplifying gives us
 
 \begin{align}
@@ -295,9 +293,7 @@ And the value of $\sin \theta_3$ above is negative for the elbow-up condition
 
 \subsection{Kinematic Modelling Approach}
 
-The kinematic model of the Dobot Magician Lite was developed using the
-Denavit--Hartenberg (DH) convention, which provides a systematic framework for
-describing the spatial relationship between adjacent links. Each joint was
+The kinematic model of the Dobot Magician Lite was developed using the Denavit--Hartenberg (DH) convention, which provides a systematic framework for describing the spatial relationship between adjacent links~\cite{siciliano2009}. Each joint was
 modelled as a revolute joint, and the robot was approximated as an open
 kinematic chain, despite the physical presence of a four-bar linkage mechanism.
 
