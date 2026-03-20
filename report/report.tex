@@ -340,39 +340,12 @@ the UI and unit tests. The dobot.m \cite{githubDobot} MATLAB class was written b
 contains the mathematical model.
 
 \section{Results and Validation}
-The MATLAB model was validated using forward-kinematics, inverse-kinematics and singularity test cases. Forward kinematics was checked by comparing computed end-effector positions with expected geometric outcomes, while inverse kinematics was verified by reconstructing joint configurations from target Cartesian positions. Additional tests were used to confirm singularity detection and rejection of unreachable targets.
-
-\begin{table}[htbp]
-\centering
-\renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.2cm}}
-\toprule
-\textbf{Test case} & \textbf{Input} & \textbf{Output} & \textbf{Remarks} \\
-\midrule
-Forward kinematics &
-$q = (0.5236,\ 0.7854,\ 0,\ 0)$ rad &
-$(x,y,z) = (0.1837,\ 0.1061,\ 0.3191)$ m &
-Correct position \\
-
-Inverse kinematics &
-Target $(0.1837,\ 0.1061,\ 0.3191)$ m &
-$q = (0.5236,\ 0.7854,\ 0,\ 0)$ rad &
-Successfully reconstructed \\
-
-Singularity test &
-$\theta_3 = 0$ &
-$\det(J)=0$ &
-Correctly detected \\
-
-Unit tests &
-Multiple valid/invalid cases &
-11/11 tests passed &
-Confirms consistency \\
-\bottomrule
-\end{tabularx}
-\caption{Validation of forward and inverse kinematics test results.}
-\label{tab:validation_results}
-\end{table}
+The MATLAB model was validated using forward-kinematics, inverse-kinematics and
+singularity test cases. Forward kinematics was checked by comparing computed
+end-effector positions with expected geometric outcomes, while inverse
+kinematics was verified by reconstructing joint configurations from target
+Cartesian positions. Additional tests \cite{githubDobotTests} were used to confirm singularity detection
+and rejection of unreachable targets.
 
 The validation results show good agreement between the analytical model and the MATLAB implementation. In particular, the consistency between the forward kinematics output and the inverse kinematics reconstruction confirms that the position mapping is internally correct. The singularity and unreachable-target tests further demonstrate that the implementation correctly handles important edge cases within the robot workspace.
 
@@ -388,12 +361,6 @@ The validation results show good agreement between the analytical model and the 
     \includegraphics[width=1\textwidth]{figures/unreachable_target.jpg}
     \caption{Detection of unreachable target in inverse kinematics.}
 \end{figure}
-
-The system correctly identifies when a target position lies outside the robot's
-reachable workspace. In this example, the computed distance $h$ exceeds the
-maximum reach of the robot ($L_2 + L_3 = 0.30$ m), resulting in an error
-message. This demonstrates that the inverse kinematics implementation includes
-proper workspace validation and prevents physically invalid solutions.
 
 \section{Discussion and Conclusion}
 This project developed and validated a kinematic model of the Dobot Magician
