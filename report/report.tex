@@ -92,14 +92,13 @@ Dobot Magician Lite robot arm with a MATLAB implementation of the model.
 
 Robot manipulators are widely used across industrial, medical and educational
 domains because of their precision, repeatability and programmability
-\cite{siciliano2009}. Common applications include pick-and-place operations,
+\cite{siciliano2009, craig2005}. Common applications include pick-and-place operations,
 assembly lines, and laboratory automation. In educational environments, robotic
-arms such as the Dobot Magician Lite are used for teaching robotics concepts
-\cite{siciliano2009}.
+arms such as the Dobot Magician Lite are used for teaching robotics concepts.
 
 The Dobot Magician Lite is a desktop serial manipulator, particularly suited for
 educational use, consisting of four revolute joints (J1--J4), forming an
-articulated robotic arm structure \cite{siciliano2009}. 
+articulated robotic arm structure. 
 
 The aim of this project was to develop an analytical and MATLAB-based model of
 the Dobot Magician Lite and to evaluate its forward kinematics, inverse
@@ -109,7 +108,7 @@ kinematics, Jacobian, singularities, dynamic equations, and validation behaviour
 \label{sec:kinematic_modelling}
 
 \subsection{Robot configuration and assumptions}
-The kinematic model therefore treats the robot as a 4R serial manipulator, with
+The kinematic model treats the robot as a 4R serial manipulator, with
 $\theta_1$ describing base rotation, $\theta_2$ and $\theta_3$ defining planar
 arm motion, and $\theta_4$ controlling tool orientation.
 
@@ -155,14 +154,14 @@ The Denavit--Hartenberg parameter table derived from the frame assignment is
 \toprule
 \textbf{Link} & \textbf{$a_i$ (mm)} & \textbf{$\alpha_i$} & \textbf{$d_i$ (mm)} & \textbf{$\theta_i$} \\
 \midrule
-1 - Base & 0 & $90^\circ$ & 150 & $\theta_1$ \\
+1 - Base & 0 & $90^\circ$ & 107 & $\theta_1$ \\
 2 - Rear Arm & 150 & $0^\circ$ & 0 & $\theta_2$ \\
 3 - Fore Arm & 150 & $0^\circ$ & 0 & $\theta_3$ \\
 P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 4 - End effector & 0 & $0^\circ$ & 0 & $\theta_4$ \\
 \bottomrule
 \end{tabular}
-\caption{Denavit--Hartenberg parameter table derived from the frame assignment.}
+\caption{Denavit--Hartenberg parameter table. Note $L_1=107\text{mm}$ and $L_2=L_3=150\text{mm}$.}
 \label{tab:dh_parameters}
 \end{table}
 
@@ -172,20 +171,20 @@ P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 The forward kinematics of the Dobot Magician Lite were derived using the
 Denavit--Hartenberg convention. Homogeneous transformation matrices were derived
 for each joint and multiplied to create the transformation matrix from the base
-frame to the end-effector frame, providing both rotation and cartesian postion
+frame to the end-effector frame, providing both rotation and cartesian position
 \cite{craig2005, denavit1955}.
 
-\[ T_{04} = A_1 A_2 A_3 A_p A_4 \]
+Let $r$ be the radial distance from the base $z$-axis to the wrist center:
+\begin{equation}
+    r = L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)
+\end{equation}
+The Cartesian position of the end-effector is then:
+\begin{align}
+    x &= r \cos(\theta_1) \\
+    y &= r \sin(\theta_1) \\
+    z &= L_1 + L_2 \sin(\theta_2) + L_3 \sin(\theta_2 + \theta_3)
+\end{align}
 
-% TODO: Put in once we fix L1 being in the matrix
-% \[
-% T_{04} = \begin{bmatrix}
-% \cos(\theta_1 + \theta_4) & 0 & \sin(\theta_1 + \theta_4) & \cos(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
-% \sin(\theta_1 + \theta_4) & 0 & -\cos(\theta_1 + \theta_4) & \sin(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
-% 0 & 1 & 0 & h + L_2 \sin(\theta_2) + L_3 \sin(\theta_2 + \theta_3) \\
-% 0 & 0 & 0 & 1
-% \end{bmatrix}
-% \]
 
 \subsection{Jacobian and singularity analysis}
 The Jacobian matrix relates joint rates to end-effector motion. In this work,
@@ -241,28 +240,33 @@ This expression shows that singularities occur when either $\sin(\theta_3) = 0$ 
 \begin{figure}[H]
     \centering
     \input{figures/inverse_xy_plane.tex}
-    \caption{Top-view geometry used to compute the base joint angle $\theta_1$.}
+    \caption{Top-view geometry showing the base joint angle $\theta_1$ relative to the Cartesian coordinates $(x, y)$.}
 \end{figure}
 
 The base joint angle is:
 \[ \theta_1 = \operatorname{atan2}(y, x) \]
 
-The remaining problem is reduced to a planar two-link geometry in the $R$--$Z$
-plane \cite{craig2005}. The function $\operatorname{atan2}(y,x)$ is used because
+The remaining problem is reduced to a planar two-link geometry in the $r$--$z$
+plane \cite{craig2005}. Define $z' = z - L_1$ as the height relative to the
+shoulder. The function $\operatorname{atan2}(y,x)$ is used because
 it returns the correct angular quadrant from the Cartesian coordinates
 \cite{mathworks2023atan2}. 
 
 \begin{figure}[H]
     \centering
     \input{figures/inverse_rz_plane.tex}
-    \caption{R-Z plane geometry used for inverse kinematics of the shoulder and elbow joints.}
+    \caption{$r$--$z$ plane geometry used for inverse kinematics of the shoulder and elbow joints.}
 \end{figure}
 
 Two solution branches exist for reachable targets: an elbow-up configuration and
-an elbow-down configuration, giving shoulder angles of:
-\[ \theta_{2u} = \phi + \beta \quad \text{(for elbow-up)}\] 
-and
-\[ \theta_{2d} = \phi - \beta \quad \text{(for elbow-down)}\]
+an elbow-down configuration. Using the law of cosines in the triangle formed by
+$L_2, L_3$, and the distance to the target $h = \sqrt{r^2 + (z')^2}$:
+\begin{equation}
+    \cos \beta = \frac{L_2^2 + h^2 - L_3^2}{2 L_2 h}
+\end{equation}
+The shoulder angles are then:
+\[ \theta_{2u} = \phi + \beta \quad \text{and} \quad \theta_{2d} = \phi - \beta \]
+where $\phi = \operatorname{atan2}(z', r)$ is the angle from the horizontal to the target.
 
 For $\theta_3$, the forearm angle, we have two cases as well: \textbf{elbow-up} and \textbf{elbow-down}. However, the derivation for the inverse kinematic equation for this angle is a bit more complex.
 
