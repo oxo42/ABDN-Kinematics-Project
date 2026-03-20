@@ -192,9 +192,10 @@ updateRobotPlot();
 
         % Sync IK target fields
         pos = d.xyz();
-        xIn.Value = floor(pos(1) * 10000000) / 10000000;
-        yIn.Value = floor(pos(2) * 10000000) / 10000000;
-        zIn.Value = floor(pos(3) * 10000000) / 10000000;
+        roundingTol = 100000;
+        xIn.Value = floor(pos(1) * roundingTol) / roundingTol;
+        yIn.Value = floor(pos(2) * roundingTol) / roundingTol;
+        zIn.Value = floor(pos(3) * roundingTol) / roundingTol;
 
         % Sync elbow mode dropdown
         if d.elbowUp()
@@ -251,7 +252,7 @@ updateRobotPlot();
     function onAnimateIK()
         target = [xIn.Value, yIn.Value, zIn.Value];
         isUp = strcmpi(elbowMode.Value, 'up');
-        
+
         % Use a temporary dobot to calculate target joint angles
         temp_robot = dobot();
         try
@@ -261,26 +262,26 @@ updateRobotPlot();
             uialert(fig, ME.message, 'IK Target Unreachable');
             return;
         end
-        
+
         start_thetas = [d.Theta1, d.Theta2, d.Theta3, d.Theta4];
-        
+
         T = max(0.1, timeIn.Value); % Ensure animation time is at least 0.1s
         fps = 30;
         num_steps = max(2, ceil(T * fps));
-        
+
         % Generate a smooth trajectory using a cosine easing function
         t = linspace(0, 1, num_steps);
         ease = (1 - cos(pi * t)) / 2;
-        
+
         thetas_traj = zeros(num_steps, 4);
         for j = 1:4
             thetas_traj(:, j) = start_thetas(j) + (target_thetas(j) - start_thetas(j)) * ease;
         end
-        
+
         % Disable buttons during animation
         btnSolve.Enable = 'off';
         btnAnimate.Enable = 'off';
-        
+
         % Run the animation loop
         for i = 1:num_steps
             try
@@ -293,7 +294,7 @@ updateRobotPlot();
                 break;
             end
         end
-        
+
         % Re-enable buttons
         btnSolve.Enable = 'on';
         btnAnimate.Enable = 'on';
