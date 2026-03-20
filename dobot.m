@@ -106,8 +106,9 @@ classdef dobot < handle
             end
 
             lim = obj.JointLimits;
+            tol = 1e-6;
             for k = 1:4
-                if thetas(k) < lim(k,1) || thetas(k) > lim(k,2)
+                if thetas(k) - lim(k, 1) <= tol || thetas(k) - lim(k,2) >= tol
                     error(['Joint %d angle is outside allowed limits.\n\n' ...
                         'Value: %.2f deg\nAllowed: [%.2f deg , %.2f deg]'], ...
                         k, rad2deg(thetas(k)), ...
