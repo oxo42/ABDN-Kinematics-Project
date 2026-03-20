@@ -193,34 +193,24 @@ P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 
 
 \subsection{Forward kinematics}
+
 The forward kinematics of the Dobot Magician Lite were derived using the
-Denavit--Hartenberg convention. A homogeneous transformation matrix was assigned
-to each joint in order to describe the position and orientation of one link
-frame relative to the preceding frame. The overall transformation from the base
-frame to the end-effector frame was then obtained by multiplying these matrices
-sequentially \cite{craig2005, denavit1955}.
+Denavit--Hartenberg convention. Homogeneous transformation matrices were derived
+for each joint and multiplied to create the transformation matrix from the base
+frame to the end-effector frame, providing both rotation and cartesian postion
+\cite{craig2005, denavit1955}.
 
-For the equivalent kinematic model used in this project, the total
-transformation is written as
 \[ T_{04} = A_1 A_2 A_3 A_p A_4 \]
-where $A_p$ denotes the passive transformation introduced to represent the
-parallelogram constraint in the physical robot. This passive term is included
-only to preserve the geometric behaviour of the end-effector and does not
-represent an additional actuated degree of freedom.
 
-The final homogeneous transformation matrix provides both the orientation of the
-end-effector and its Cartesian position relative to the base frame. The position
-terms of this transformation were later used to derive the inverse kinematics
-equations and to construct the Jacobian for velocity and singularity analysis.
-
-\[
-T_{04} = \begin{bmatrix}
-\cos(\theta_1 + \theta_4) & 0 & \sin(\theta_1 + \theta_4) & \cos(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
-\sin(\theta_1 + \theta_4) & 0 & -\cos(\theta_1 + \theta_4) & \sin(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
-0 & 1 & 0 & h + L_2 \sin(\theta_2) + L_3 \sin(\theta_2 + \theta_3) \\
-0 & 0 & 0 & 1
-\end{bmatrix}
-\]
+% TODO: Put in once we fix L1 being in the matrix
+% \[
+% T_{04} = \begin{bmatrix}
+% \cos(\theta_1 + \theta_4) & 0 & \sin(\theta_1 + \theta_4) & \cos(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
+% \sin(\theta_1 + \theta_4) & 0 & -\cos(\theta_1 + \theta_4) & \sin(\theta_1)(L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3)) \\
+% 0 & 1 & 0 & h + L_2 \sin(\theta_2) + L_3 \sin(\theta_2 + \theta_3) \\
+% 0 & 0 & 0 & 1
+% \end{bmatrix}
+% \]
 
 \subsection{Jacobian and singularity analysis}
 The Jacobian matrix relates joint rates to end-effector motion. In this work,
