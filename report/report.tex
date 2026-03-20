@@ -393,21 +393,26 @@ And the value of $\sin \theta_3$ above is negative for the elbow-up condition
 \section{Materials and Methods}
 
 \subsection{Kinematic Modelling Approach}
-The kinematic model of the Dobot Magician Lite was developed using the Denavit--Hartenberg (DH) convention, which provides a systematic framework for describing the spatial relationship between adjacent links. Each joint was modelled as a revolute joint, and the robot was approximated as an open kinematic chain, despite the physical presence of a four-bar linkage mechanism.
 
-A passive link was introduced in the model to maintain the constraint that the end-effector remains parallel to the ground. This simplification allows the system to be analysed using standard serial manipulator techniques while preserving key geometric behaviour.
+The kinematic model of the Dobot Magician Lite was developed using the
+Denavit--Hartenberg (DH) convention, which provides a systematic framework for
+describing the spatial relationship between adjacent links. Each joint was
+modelled as a revolute joint, and the robot was approximated as an open
+kinematic chain, despite the physical presence of a four-bar linkage mechanism.
+
+A passive link was introduced in the model to maintain the constraint that the
+end-effector remains parallel to the ground. This simplification allows the
+system to be analysed using standard serial manipulator techniques while
+preserving key geometric behaviour.
 
 \subsection{Inverse Kinematics Strategy}
-A geometric approach was selected for solving the inverse kinematics problem. This method was chosen due to the relatively simple structure of the robot and the availability of clear geometric relationships between joint angles and end-effector position.
+A geometric approach was selected for solving the inverse kinematics problem.
+This method was chosen due to the relatively simple structure of the robot and
+the availability of clear geometric relationships between joint angles and
+end-effector position.
 
-The inverse kinematics solution was derived by:
-\begin{itemize}
-    \item First solving for the base rotation using $\theta_1 = \operatorname{atan2}(y, x)$
-    \item Reducing the 3D problem into a 2D planar problem in the $(r, z)$ plane
-    \item Applying trigonometric relationships and cosine law to determine $\theta_2$ and $\theta_3$
-    \item Considering both elbow-up and elbow-down configurations
-\end{itemize}
-This approach was preferred over numerical methods due to its computational efficiency, analytical clarity, and suitability for real-time applications.
+This approach was preferred over numerical methods due to its computational
+efficiency, analytical clarity, and suitability for real-time applications.
 
 \subsection{Dynamic Modelling Approach}
 The dynamic behaviour of the manipulator was considered using the standard
