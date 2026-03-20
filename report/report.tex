@@ -238,29 +238,27 @@ r \cos(\theta_1) & \sin(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \the
 \end{bmatrix}
 \]
 
-Where: $\theta_1$ is the base rotation, $\theta_2$ is the shoulder joint angle,
-$\theta_3$ is the elbow joint angle, $\theta_4$ is the tool rotation, $L_2$ is
-the rear arm length, $L_3$ is the forearm length, $h$ is the base height offset.
-Note that $L_1$ is not included in the Jacobian because it is a constant term
-that does not affect the velocity mapping.
+% TODO: I (John) think this is wrong.  Not having any rotation around any other
+% axes doesn't make sense to me. I will put it back in once someone explains
+% this
 
-\subsubsection*{Analytical Jacobian}
-The analytical Jacobian satisfies $\dot{x} = J_a(q) \dot{q}$ and is given by
-\[
-J_a(q) = \begin{bmatrix}
--r \sin(\theta_1) & \cos(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
--r \cos(\theta_1) & \sin(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
-0 & L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3) & L_3 \cos(\theta_2 + \theta_3) & 0 \\
-1 & 0 & 0 & 1
-\end{bmatrix}
-\]
-The base offset $h$ appears in the forward kinematics of $z$, but it does not
-appear in the Jacobian because it is a constant term. Its derivative with
-respect to all joint variables is zero.
+% \subsubsection*{Analytical Jacobian}
+% The analytical Jacobian satisfies $\dot{x} = J_a(q) \dot{q}$ and is given by
+% \[
+% J_a(q) = \begin{bmatrix}
+% -r \sin(\theta_1) & \cos(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
+% -r \cos(\theta_1) & \sin(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
+% 0 & L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3) & L_3 \cos(\theta_2 + \theta_3) & 0 \\
+% 1 & 0 & 0 & 1
+% \end{bmatrix}
+% \]
+% The base offset $h$ appears in the forward kinematics of $z$, but it does not
+% appear in the Jacobian because it is a constant term. Its derivative with
+% respect to all joint variables is zero.
 
 \subsubsection*{Singularities}
 A singularity occurs when the determinant of the analytical Jacobian becomes zero:
-\[ \det(J) = L_1 L_2 \sin(\theta_3) r = 0 \]
+\[ \det(J) = L_2 L_3 \sin(\theta_3) r = 0 \]
 This expression shows that singularities occur when either $\sin(\theta_3) = 0$ or $r = 0$. The condition $\sin(\theta_3) = 0$ corresponds to the arm being fully stretched or fully folded, so that the links become collinear. The condition $r = 0$ corresponds to the wrist lying on the base axis, where the manipulator loses motion authority in certain horizontal directions. Near these configurations, the velocity mapping becomes ill-conditioned and large joint velocities may be required to generate small end-effector motions \cite{siciliano2009, spong2006}.
 
 \subsection{Inverse kinematics}
@@ -298,7 +296,7 @@ position:
 \[ \theta_1 = \operatorname{atan2}(y, x) \]
 
 The radial distance in the horizontal plane is then $r = \sqrt{x^2 + y^2}$. The
-remaining problem is reduced to a planar two-link geometry in the $r$--$z$ plane
+remaining problem is reduced to a planar two-link geometry in the $R$--$Z$ plane
 \cite{craig2005}. The function $\operatorname{atan2}(y,x)$ is used for the base
 joint angle because it returns the correct angular quadrant from the Cartesian
 coordinates and is therefore more robust than using a simple inverse tangent
@@ -353,83 +351,44 @@ two-link planar arm structures \cite{mathworks2023, craig2005}.
         \fill (J2d) circle (1.5pt);
         \fill (J3) circle (1.5pt);
     \end{tikzpicture}
-    \caption{Planar geometric construction used for the inverse kinematics derivation.}
+    \caption{R-Z plane geometry used for inverse kinematics of the shoulder and elbow joints}
 \end{figure}
 
-Figure 5 shows the planar geometry used to derive the shoulder and elbow solutions. Two solution branches exist for reachable targets: an elbow-up configuration and an elbow-down configuration. Accordingly, the shoulder angle may be written as
+Two solution branches exist for reachable targets: an elbow-up configuration and
+an elbow-down configuration, giving shoulder angles of:
 \[ \theta_{2u} = \phi + \beta \quad \text{(for elbow-up)}\] 
-for one branch and
+and
 \[ \theta_{2d} = \phi - \beta \quad \text{(for elbow-down)}\]
-
-for the other. The elbow angle $\theta_3$ is then obtained from the corresponding trigonometric relations.
-
-
-
-
-
 
 For $\theta_3$, the forearm angle, we have two cases as well: \textbf{elbow-up} and \textbf{elbow-down}. However, the derivation for the inverse kinematic equation for this angle is a bit more complex.
 
-Starting with the forward kinematics:
-\begin{equation}
-    r = 0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3)
-\end{equation}
-\begin{equation}
-    Z = 0.15 \sin \theta_2 + 0.15 \sin(\theta_2 + \theta_3)
-\end{equation}
+Given
+\begin{align}
+    z' = z - L_1 \\
+    r^2 = L_2 cos(\theta_2) + L_3 cos(\theta_2 + \theta_3) \\
+    z' = L_2 sin(\theta_2) + L_3 sin(\theta_2 + \theta_3)
+\end{align}
 
-Squaring both sides of both equations above, using $(a+b)^2 = a^2 + b^2 + 2ab$:
-\begin{equation}
-    r^2 = (0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3))^2
-\end{equation}
-\begin{equation}
-    r^2 = 0.15^2 \cos^2 \theta_2 + 0.15^2 \cos^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \cos \theta_2 \cos(\theta_2 + \theta_3)
-\end{equation}
-\begin{equation}
-    Z^2 = 0.15^2 \sin^2 \theta_2 + 0.15^2 \sin^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \sin \theta_2 \sin(\theta_2 + \theta_3)
-\end{equation}
+and the trig identities
+\begin{align}
+    \cos^2 \theta + \sin^2 \theta = 1 \\
+    \cos(a + b) = \cos a \cos b - \sin a \sin b
+\end{align}
 
-Using the trigonometric identities:
-\begin{itemize}
-    \item $\cos^2 \theta + \sin^2 \theta = 1$
-    \item $\cos(A - B) = \cos A \cos B + \sin A \sin B$
-\end{itemize}
+Adding $r^2$ and $z'^2$ and simplifying gives us
 
-Adding $r^2$ and $Z^2$:
-\begin{equation}
-    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) [\cos \theta_2 \cos(\theta_2 + \theta_3) + \sin \theta_2 \sin(\theta_2 + \theta_3)]
-\end{equation}
+\begin{align}
+    \cos \theta_3 = \frac{r^2 + z'^2 - L_2^2 - L_3^2}{2L_2L_3} \\
+    \sin \theta_3 = \sqrt{1 - \cos^2 \theta_3}
+\end{align}
 
-Simplifying using the cosine difference identity $\cos((\theta_2 + \theta_3) - \theta_2) = \cos \theta_3$:
-\begin{equation}
-    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) \cos \theta_3
-\end{equation}
-
-Solving for $\cos \theta_3$:
-\begin{equation}
-    \cos \theta_3 = \frac{r^2 + Z^2 - 0.15^2 - 0.15^2}{2(0.15)(0.15)}
-\end{equation}
-
-Then for the sine:
-\begin{equation}
-    \sin \theta_3 = \sqrt{1 - \cos^2 \theta_3} \quad \text{(for elbow-down)}
-\end{equation}
-
-And the value of $\sin \theta_3$ above is negative for the elbow-up condition. Finally, using the two-argument arctangent:
+And the value of $\sin \theta_3$ above is negative for the elbow-up condition
 \begin{equation}
     \theta_{3d} = \operatorname{atan2}(\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-down)}
 \end{equation}
 \begin{equation}
     \theta_{3u} = \operatorname{atan2}(-\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-up)}
 \end{equation}
-
-
-
-
-
-
-
-
 
 \section{Materials and Methods}
 
