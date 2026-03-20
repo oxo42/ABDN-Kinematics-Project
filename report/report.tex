@@ -133,10 +133,10 @@ Denavit--Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
 with the axis of rotation of the corresponding joint, while each $x$-axis was
 defined along the common normal between adjacent joint axes. 
 
-The physical robot is a series of 4-bar linkages that form a closed kinematic
-chain. To simplify this, we have chosen to model the robot as a series of
-revolute joints, and have included a passive joint P that keeps the end effector
-parallel to the ground.
+The physical robot is a series of 4-bar linkages \cite{cmuSimulation2022} that
+form a closed kinematic chain. To simplify this, we have chosen to model the
+robot as a series of revolute joints, and have included a passive joint P that
+keeps the end effector parallel to the ground.
 
 
 \begin{center}
@@ -162,10 +162,7 @@ $L_1, L_2, L_3$ & Main arm link lengths \\
 
 
 The Denavit--Hartenberg parameter table derived from the frame assignment is
-given below. Note that the final rotation into the end effector frame $\alpha_3$
-happens at the end of the passive link, so the passive link's rotation still
-applies to the frame from joint 3.
-
+given below. 
 \begin{table}[htbp]
 \centering
 \renewcommand{\arraystretch}{1.2}
@@ -184,6 +181,16 @@ P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 \label{tab:dh_parameters}
 \end{table}
 
+\subsubsection{The Passive Joint}
+\label{subsec:passive_joint}
+
+The passive joint P is introduced to maintain the constraint that the
+end-effector remains parallel to the ground. This is achieved by defining the
+passive joint angle as $-\theta_3-\theta_2$.
+
+The final rotation into the end effector frame $\alpha_3$
+happens at the end of the passive link, so the passive link's rotation still
+applies to the frame from joint 3.
 
 \subsection{Forward kinematics}
 
@@ -427,20 +434,38 @@ The validation results show good agreement between the analytical model and the 
     \caption{Detection of unreachable target in inverse kinematics.}
 \end{figure}
 
-The system correctly identifies when a target position lies outside the robot's reachable workspace. In this example, the computed distance $h$ exceeds the maximum reach of the robot ($L_2 + L_3 = 0.30$ m), resulting in an error message. This demonstrates that the inverse kinematics implementation includes proper workspace validation and prevents physically invalid solutions.
+The system correctly identifies when a target position lies outside the robot's
+reachable workspace. In this example, the computed distance $h$ exceeds the
+maximum reach of the robot ($L_2 + L_3 = 0.30$ m), resulting in an error
+message. This demonstrates that the inverse kinematics implementation includes
+proper workspace validation and prevents physically invalid solutions.
 
 \section{Discussion and Conclusion}
-This project developed and validated a kinematic model of the Dobot Magician Lite using the Denavit--Hartenberg formulation and implemented the main equations in MATLAB. Forward and inverse kinematics were derived analytically, the Jacobian was obtained for differential motion analysis, and singular configurations were identified from the analytical model. The resulting MATLAB implementation was able to reproduce valid end-effector positions and reject targets lying outside the reachable workspace.
+This project developed and validated a kinematic model of the Dobot Magician
+Lite using the Denavit--Hartenberg formulation and implemented the main
+equations in MATLAB. Forward and inverse kinematics were derived analytically,
+the Jacobian was obtained for differential motion analysis, and singular
+configurations were identified from the analytical model. The resulting MATLAB
+implementation was able to reproduce valid end-effector positions and reject
+targets lying outside the reachable workspace.
 
-One of the main technical difficulties was representing the physical parallelogram mechanism of the robot within a tractable analytical framework. This was addressed by replacing the closed-chain behaviour with an equivalent open-chain model containing a passive transformation that preserved the essential orientation constraint without introducing an additional actuated degree of freedom. A second challenge was the derivation of inverse kinematics in a form suitable for reliable computation; this was solved by reducing the problem to a planar geometric construction in the $r$--$z$ plane. A further limitation concerned dynamics, since accurate link masses, centres of mass and inertia tensors were not available in sufficient detail from the manufacturer documentation.
+The actual robot is a series of 4-bar linkages \cite{cmuSimulation2022}. After
+chosing to simplify the robot to a series of 4-bar linkages, the end effector
+was no longer parallel to the ground. The solution to this is detailed in
+Subsection~\ref{subsec:passive_joint}.
 
-Despite these limitations, the final model provides a robust analytical and computational framework for studying the motion of the Dobot Magician Lite. The results demonstrate that the model is suitable for forward kinematics, inverse kinematics, singularity detection and validation testing in MATLAB. Future work could extend the model by incorporating experimentally identified dynamic parameters, actuator constraints, joint limits and closed-loop control in order to improve realism and practical applicability.
+A second challenge was the derivation of inverse kinematics
+in a form suitable for reliable computation; this was solved by reducing the
+problem to a planar geometric construction in the $r$--$z$ plane. 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.65\textwidth]{figures/principal_dimensions.jpg}
-    \caption{Principal dimensions of the Dobot Magician Lite. Taken from \cite{dobotManual}.}
-\end{figure}
+As accurate link masses, centres of mass and
+inertia tensors were not available in sufficient detail from the manufacturer
+documentation, these were estimated in the model.
+
+In the MATLAB UI, animation of the robot's arm, while using a cosine easing
+function, linearly changes the joint angles from the initial value to the final
+values. In the future, we would like to implement animation that used the
+Jacobian to make the robot follow a specific path.
 
 \bibliographystyle{plain}
 \bibliography{references}
