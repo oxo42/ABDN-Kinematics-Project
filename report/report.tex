@@ -139,6 +139,7 @@ $L_1, L_2, L_3$ & Main arm link lengths \\
 \vspace{0.1cm}
 
 \section{Kinematic Modelling}
+\label{sec:kinematic_modelling}
 
 \subsection{Robot configuration and assumptions}
 The kinematic model therefore treats the robot as a 4R serial manipulator, with
@@ -489,14 +490,20 @@ where $\tau$ is the vector of joint torques, $M(q)$ is the inertia matrix, $C(q,
 In the present project, the dynamic equations were incorporated at a conceptual and modelling level to extend the kinematic model developed in MATLAB. However, a complete high-fidelity dynamic implementation was limited by the lack of detailed physical parameters such as link masses, mass centres, and inertia tensors from the manufacturer documentation \cite{siciliano2009}. Therefore, the work focused on establishing the dynamic form of the equations and explaining how such terms would be integrated into the MATLAB model for future extension.
 
 \subsection{MATLAB Implementation}
-The robot model was implemented in MATLAB using a modular approach. Individual functions were created for the Denavit--Hartenberg transformations, forward kinematics evaluation, inverse kinematics solution, Jacobian computation, and workspace validation. Symbolic computation was used where appropriate to derive compact expressions for the forward kinematics and Jacobian, which were then evaluated numerically during testing \cite{corke2017}.
 
-The implementation was designed so that a target Cartesian position could be provided as input, the corresponding joint angles could be computed through inverse kinematics, and the resulting configuration could then be verified through forward kinematics reconstruction. Additional checks were included to detect unreachable targets and singular configurations.
+The robot model was implemented as described in
+Section~\ref{sec:kinematic_modelling} as a MATLAB class with an API allowing for
+moving the joint angles, setting the end effect location in 3D space and viewing
+the transformation matrices, jacobian etc. See dobot.m for the full implementation.
 
-\subsection{Testing Framework}
-A structured testing framework was used to validate the correctness of the mathematical model and its MATLAB implementation. Forward kinematics was tested by providing known joint configurations and comparing the resulting end-effector position with the expected geometric outcome. Inverse kinematics was validated by solving for joint variables from a target Cartesian position and substituting the solution back into the forward kinematics equations.
+A UI was built (see Figure~\ref{fig:ui_robot}) to allow users to interact with
+the model and unit tests \(dobot_tests.m\) were added to ensure the model stayed
+accurate over time.
 
-Additional tests were used to verify singularity detection and workspace rejection for unreachable targets. Together, these checks ensured internal consistency between the analytical derivations and the computational implementation.
+\subsection{AI}
+AI tools, specifically Gemini \& ChatGPT, were used to assist in generating Matlab code for
+the UI and unit tests. The dobot.m Matlab class was written by hand as that
+contains the mathematical model.
 
 \section{Results and Validation}
 The MATLAB model was validated using forward-kinematics, inverse-kinematics and singularity test cases. Forward kinematics was checked by comparing computed end-effector positions with expected geometric outcomes, while inverse kinematics was verified by reconstructing joint configurations from target Cartesian positions. Additional tests were used to confirm singularity detection and rejection of unreachable targets.
@@ -539,6 +546,7 @@ The validation results show good agreement between the analytical model and the 
     \centering
     \includegraphics[width=0.68\textwidth]{figures/fig7_successful_inverse_kinematics_solution.jpg}
     \caption{Successful inverse kinematics solution using the MATLAB-based UI.}
+    \label{fig:ui_robot}
 \end{figure}
 
 \begin{figure}[H]
