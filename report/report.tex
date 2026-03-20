@@ -229,9 +229,9 @@ velocity of the end effector:
 The geometric Jacobian is therefore:
 \[
 J_g(q) = \begin{bmatrix}
--r \sin(\theta_1) & \cos(\theta_1)(-L_1 \sin(\theta_2) - L_2 \sin(\theta_2 + \theta_3)) & -L_2 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
-r \cos(\theta_1) & \sin(\theta_1)(-L_1 \sin(\theta_2) - L_2 \sin(\theta_2 + \theta_3)) & -L_2 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
-0 & L_1 \cos(\theta_2) + L_2 \cos(\theta_2 + \theta_3) & L_2 \cos(\theta_2 + \theta_3) & 0 \\
+-r \sin(\theta_1) & \cos(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
+r \cos(\theta_1) & \sin(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
+0 & L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3) & L_3 \cos(\theta_2 + \theta_3) & 0 \\
 0 & -\sin(\theta_1) & -\sin(\theta_1) & 0 \\
 0 & \cos(\theta_1) & \cos(\theta_1) & 0 \\
 1 & 0 & 0 & 1
@@ -248,13 +248,15 @@ that does not affect the velocity mapping.
 The analytical Jacobian satisfies $\dot{x} = J_a(q) \dot{q}$ and is given by
 \[
 J_a(q) = \begin{bmatrix}
--r \sin(\theta_1) & \cos(\theta_1)(-L_1 \sin(\theta_2) - L_2 \sin(\theta_2 + \theta_3)) & -L_2 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
--r \cos(\theta_1) & \sin(\theta_1)(-L_1 \sin(\theta_2) - L_2 \sin(\theta_2 + \theta_3)) & -L_2 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
-0 & L_1 \cos(\theta_2) + L_2 \cos(\theta_2 + \theta_3) & L_2 \cos(\theta_2 + \theta_3) & 0 \\
+-r \sin(\theta_1) & \cos(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \cos(\theta_1) & 0 \\
+-r \cos(\theta_1) & \sin(\theta_1)(-L_2 \sin(\theta_2) - L_3 \sin(\theta_2 + \theta_3)) & -L_3 \sin(\theta_2 + \theta_3) \sin(\theta_1) & 0 \\
+0 & L_2 \cos(\theta_2) + L_3 \cos(\theta_2 + \theta_3) & L_3 \cos(\theta_2 + \theta_3) & 0 \\
 1 & 0 & 0 & 1
 \end{bmatrix}
 \]
-The base offset $h$ appears in the forward kinematics of $z$, but it does not appear in the Jacobian because it is a constant term. Its derivative with respect to all joint variables is zero.
+The base offset $h$ appears in the forward kinematics of $z$, but it does not
+appear in the Jacobian because it is a constant term. Its derivative with
+respect to all joint variables is zero.
 
 \subsubsection*{Singularities}
 A singularity occurs when the determinant of the analytical Jacobian becomes zero:
