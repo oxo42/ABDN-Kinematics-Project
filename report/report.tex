@@ -262,25 +262,7 @@ structures \cite{mathworks2023, craig2005}.
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[scale=1.5, >=stealth]
-        \node[font=\bfseries, anchor=north] at (1.5, 3.5) {X-Y Plane Geometry};
-
-        \coordinate (O) at (0,0);
-        \coordinate (X) at (3,0);
-        \coordinate (Y) at (0,3);
-        \coordinate (J3) at (55:2.8);
-        
-        \draw[->] (-0.5,0) -- (X) node[right] {$x$};
-        \draw[->] (0,-0.5) -- (Y) node[above] {$y$};
-
-        \draw[thick] (O) -- (J3) node[midway, right] {$r$};
-        \node[above right] at (J3) {$(x, y)$};
-
-        \pic [draw, "$\theta_1$", angle eccentricity=1.5, angle radius=1cm] {angle = X--O--J3};
-
-        \fill (O) circle (1.5pt);
-        \fill (J3) circle (1.5pt);
-    \end{tikzpicture}
+    \input{figures/inverse_xy_plane.tex}
     \caption{Top-view geometry used to compute the base joint angle $\theta_1$.}
 \end{figure}
 
@@ -299,51 +281,7 @@ two-link planar arm structures \cite{mathworks2023, craig2005}.
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[scale=1.5, >=stealth]
-        \node[font=\bfseries, anchor=north] at (1.75, 4) {R-Z Plane Geometry};
-        
-        \coordinate (O) at (0,-1);
-        \coordinate (J1) at (0,0);
-        \coordinate (J2u) at (40:3);
-        \coordinate (J2d) at (10:3);
-        \coordinate (J3) at ($(J2u) + (10:3)$);
-        \coordinate (Zp) at (J3 |- J1);
-
-        \draw[thick] (O) -- (J1) node[midway, left] {$L_1$};
-        
-        \draw[thick] (J1) -- (J2u) node[midway, above left] {$L_2$};
-        \draw[thick] (J2u) -- (J3) node[midway, above right] {$L_3$};
-        \draw[thick] (J1) -- (J2d) node[midway, above left] {};
-        \draw[thick] (J2d) -- (J3) node[midway, above right] {};
-        
-        \node[above right] at (J3) {$(r, z)$};
-        \node[left] at (O) {$O$};
-        \node[above left] at (J2u) {Elbow up};
-
-        \draw[thick, green!60!black] (J1) -- (J3) node[midway, above] {$h$};
-        \draw[blue!70!black, dashed] (J3) -- (Zp) node[midway, right] {$z_r$};
-
-        \draw[dashed] (J1) -- (Zp);
-
-        \coordinate (Ext) at ($(J1)!1.5!(J2u)$);
-        \draw[dashed] (J2u) -- (Ext);
-        \coordinate (Extd) at ($(J1)!1.5!(J2d)$);
-        \draw[dashed] (J2d) -- (Extd);
-
-        \pic [draw, "$\theta_{2u}$", angle eccentricity=1.3, angle radius=1cm] {angle = Zp--J1--J2u};
-        \pic [draw, "$\theta_{2d}$", angle eccentricity=1.1, angle radius=3cm] {angle = Zp--J1--J2d};
-        \pic [draw, green!60!black, "$\phi$", angle eccentricity=1.2, angle radius=1.8cm] {angle = Zp--J1--J3};
-        \pic [draw, "$\beta$", angle eccentricity=1.5, angle radius=2.0cm] {angle = J3--J1--J2u};
-        
-        \pic [draw, blue, "$\theta_3$", angle eccentricity=1.5, angle radius=0.7cm] {angle = J3--J2u--Ext};
-        \pic [draw, blue, "$\theta_3$", angle eccentricity=1.5, angle radius=0.7cm] {angle = Extd--J2d--J3};
-
-        \fill (O) circle (1.5pt);
-        \fill (J1) circle (1.5pt);
-        \fill (J2u) circle (1.5pt);
-        \fill (J2d) circle (1.5pt);
-        \fill (J3) circle (1.5pt);
-    \end{tikzpicture}
+    \input{figures/inverse_rz_plane.tex}
     \caption{R-Z plane geometry used for inverse kinematics of the shoulder and elbow joints.}
 \end{figure}
 
