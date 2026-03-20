@@ -156,5 +156,46 @@ classdef dobot_tests < matlab.unittest.TestCase
             call = @() d.setEndEffector(target);
             testCase.verifyError(call, '');
         end
+
+        function testValidateJointLimitsValid(testCase)
+            d = dobot();
+            % Test valid joints explicitly calling validateJointLimits
+            thetas = [0.5, 0.5, 0.1, 0.5];
+            % Should not throw an error
+            d.validateJointLimits(thetas);
+        end
+
+        function testValidateJointLimitsInvalid(testCase)
+            d = dobot();
+            limits = d.JointLimits;
+
+            % Joint 1 too low
+            call = @() d.validateJointLimits([limits(1,1)-0.1, 0, 0, 0]);
+            testCase.verifyError(call, '');
+            
+            % Joint 2 too high
+            call = @() d.validateJointLimits([0, limits(2,2)+0.1, 0, 0]);
+            testCase.verifyError(call, '');
+            
+            % Joint 3 too low
+            call = @() d.validateJointLimits([0, 0, limits(3,1)-0.1, 0]);
+            testCase.verifyError(call, '');
+            
+            % Joint 4 too high
+            call = @() d.validateJointLimits([0, 0, 0, limits(4,2)+0.1]);
+            testCase.verifyError(call, '');
+        end
+
+        function testValidateJointLimitsNoArgs(testCase)
+            d = dobot();
+            % Default angles are 0, which are valid
+            d.validateJointLimits();
+
+            % Set an invalid angle directly (bypassing setJointAngles)
+            limits = d.JointLimits;
+            d.Theta1 = limits(1,1) - 0.1;
+            call = @() d.validateJointLimits();
+            testCase.verifyError(call, '');
+        end
     end
 end
