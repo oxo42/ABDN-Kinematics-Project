@@ -388,10 +388,79 @@ two-link planar arm structures \cite{mathworks2023, craig2005}.
 \end{figure}
 
 Figure 5 shows the planar geometry used to derive the shoulder and elbow solutions. Two solution branches exist for reachable targets: an elbow-up configuration and an elbow-down configuration. Accordingly, the shoulder angle may be written as
-\[ \theta_2 = \phi + \beta \]
+\[ \theta_{2u} = \phi + \beta \quad \text{(for elbow-up)}\] 
 for one branch and
-\[ \theta_2 = \phi - \beta \]
-for the other. The elbow angle $\theta_3$ is then obtained from the corresponding trigonometric relations, giving two valid inverse-kinematics solutions for the same target position.
+\[ \theta_{2d} = \phi - \beta \quad \text{(for elbow-down)}\]
+
+for the other. The elbow angle $\theta_3$ is then obtained from the corresponding trigonometric relations.
+
+
+
+
+
+
+For $\theta_3$, the forearm angle, we have two cases as well: \textbf{elbow-up} and \textbf{elbow-down}. However, the derivation for the inverse kinematic equation for this angle is a bit more complex.
+
+Starting with the forward kinematics:
+\begin{equation}
+    r = 0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3)
+\end{equation}
+\begin{equation}
+    Z = 0.15 \sin \theta_2 + 0.15 \sin(\theta_2 + \theta_3)
+\end{equation}
+
+Squaring both sides of both equations above, using $(a+b)^2 = a^2 + b^2 + 2ab$:
+\begin{equation}
+    r^2 = (0.15 \cos \theta_2 + 0.15 \cos(\theta_2 + \theta_3))^2
+\end{equation}
+\begin{equation}
+    r^2 = 0.15^2 \cos^2 \theta_2 + 0.15^2 \cos^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \cos \theta_2 \cos(\theta_2 + \theta_3)
+\end{equation}
+\begin{equation}
+    Z^2 = 0.15^2 \sin^2 \theta_2 + 0.15^2 \sin^2(\theta_2 + \theta_3) + 2(0.15)(0.15) \sin \theta_2 \sin(\theta_2 + \theta_3)
+\end{equation}
+
+Using the trigonometric identities:
+\begin{itemize}
+    \item $\cos^2 \theta + \sin^2 \theta = 1$
+    \item $\cos(A - B) = \cos A \cos B + \sin A \sin B$
+\end{itemize}
+
+Adding $r^2$ and $Z^2$:
+\begin{equation}
+    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) [\cos \theta_2 \cos(\theta_2 + \theta_3) + \sin \theta_2 \sin(\theta_2 + \theta_3)]
+\end{equation}
+
+Simplifying using the cosine difference identity $\cos((\theta_2 + \theta_3) - \theta_2) = \cos \theta_3$:
+\begin{equation}
+    r^2 + Z^2 = 0.15^2 + 0.15^2 + 2(0.15)(0.15) \cos \theta_3
+\end{equation}
+
+Solving for $\cos \theta_3$:
+\begin{equation}
+    \cos \theta_3 = \frac{r^2 + Z^2 - 0.15^2 - 0.15^2}{2(0.15)(0.15)}
+\end{equation}
+
+Then for the sine:
+\begin{equation}
+    \sin \theta_3 = \sqrt{1 - \cos^2 \theta_3} \quad \text{(for elbow-down)}
+\end{equation}
+
+And the value of $\sin \theta_3$ above is negative for the elbow-up condition. Finally, using the two-argument arctangent:
+\begin{equation}
+    \theta_{3d} = \operatorname{atan2}(\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-down)}
+\end{equation}
+\begin{equation}
+    \theta_{3u} = \operatorname{atan2}(-\sin \theta_3, \cos \theta_3) \quad \text{(for elbow-up)}
+\end{equation}
+
+
+
+
+
+
+
+
 
 \section{Materials and Methods}
 
