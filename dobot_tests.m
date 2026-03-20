@@ -197,5 +197,160 @@ classdef dobot_tests < matlab.unittest.TestCase
             call = @() d.validateJointLimits();
             testCase.verifyError(call, '');
         end
+
+        function testSetJointAngles(testCase)
+            d = dobot();
+            thetas = [0.1, 0.2, -0.1, 0.4];
+            d.setJointAngles(thetas);
+            testCase.verifyEqual(d.Theta1, 0.1);
+            testCase.verifyEqual(d.Theta2, 0.2);
+            testCase.verifyEqual(d.Theta3, -0.1);
+            testCase.verifyEqual(d.Theta4, 0.4);
+            
+            % Check that it errors on invalid angles
+            invalid_thetas = [5, 0, 0, 0]; % Theta1 limit is ~2.35
+            call = @() d.setJointAngles(invalid_thetas);
+            testCase.verifyError(call, '');
+        end
+
+        function testSingularityConditions(testCase)
+            % Condition 1: sin(theta3) == 0
+            d = dobot(0, 0, 0, 0); % theta3 = 0
+            [cond1, cond2] = d.singularityConditions();
+            testCase.assertTrue(cond1);
+            testCase.assertFalse(cond2); % arm is outstretched, r is not 0
+            
+            % Condition 2: L2*cos(theta2) + L3*cos(theta2+theta3) == 0 (wrist above base)
+            % Find angles where r = 0.
+            % L2 = L3 = 0.15. If theta2 = pi/2 and theta3 = 0, cos(pi/2)=0.
+            d = dobot(0, pi/2, 0, 0); 
+            [cond1, cond2] = d.singularityConditions();
+            testCase.assertTrue(cond1); % sin(0) = 0
+            testCase.assertTrue(cond2); % r = 0
+
+            % Not singular
+            d = dobot(0, 0.1, -0.1, 0);
+            [cond1, cond2] = d.singularityConditions();
+            testCase.assertFalse(cond1);
+            testCase.assertFalse(cond2);
+        end
+
+        function testValidateMass(testCase)
+            d = dobot();
+            % Valid mass
+            d.validateMass(1.5, 'TestMass');
+            d.validateMass(0, 'TestMass');
+            
+            % Invalid mass
+            testCase.verifyError(@() d.validateMass(-1, 'TestMass'), 'dobot:InvalidMass');
+            testCase.verifyError(@() d.validateMass([], 'TestMass'), 'dobot:InvalidMass');
+            testCase.verifyError(@() d.validateMass([1 2], 'TestMass'), 'dobot:InvalidMass');
+            testCase.verifyError(@() d.validateMass(NaN, 'TestMass'), 'dobot:InvalidMass');
+        end
+
+        function testParseDynamicState(testCase)
+            d = dobot(0.1, 0.2, 0.3, 0.4);
+            
+            % Empty 'q' should return current joint angles
+            q_default = d.parseDynamicState([], 'q');
+            testCase.verifyEqual(q_default, [0.1; 0.2; 0.3; 0.4]);
+            
+            % Empty 'qd' or 'qdd' should return zeros
+            qd_default = d.parseDynamicState([], 'qd');
+            testCase.verifyEqual(qd_default, zeros(4,1));
+            
+            % Valid state
+            state = d.parseDynamicState([1, 2, 3, 4], 'q');
+            testCase.verifyEqual(state, [1; 2; 3; 4]);
+            
+            % Invalid state length
+            testCase.verifyError(@() d.parseDynamicState([1, 2, 3], 'q'), 'dobot:InvalidDynamicState');
+        end
+
+        function testGravityVector(testCase)
+            d = dobot();
+            d.M1 = 1; d.M2 = 1; d.M3 = 1;
+            
+            % When pointing straight out horizontally (theta2=0, theta3=0)
+            % Gravity should exert maximum torque on joint 2
+            q = [0; 0; 0; 0];
+            G = d.gravityVector(q);
+            
+            % Expected gravity on joint 2 (supporting M1, M2, M3)
+            % G2 = g * ( (m1*lc2 + (m2+m3)*L2) + (m2*lc3 + m3*L3) )
+            % lc2=0.075, L2=0.15, lc3=0.075, L3=0.15
+            expected_G2 = 9.81 * ( (1*0.075 + 2*0.15) + (1*0.075 + 1*0.15) );
+            testCase.verifyEqual(G(2), expected_G2, 'AbsTol', 1e-6);
+            
+            % Expected gravity on joint 3 (supporting M2, M3)
+            % G3 = g * (m2*lc3 + m3*L3)
+            expected_G3 = 9.81 * (1*0.075 + 1*0.15);
+            testCase.verifyEqual(G(3), expected_G3, 'AbsTol', 1e-6);
+            
+            % Joint 1 and 4 are vertical axes, gravity should not affect them
+            testCase.verifyEqual(G(1), 0);
+            testCase.verifyEqual(G(4), 0);
+        end
+
+        function testInertiaMatrixProperties(testCase)
+            d = dobot();
+            q = [0.1; 0.2; 0.3; 0.4];
+            M = d.inertiaMatrix(q);
+            
+            % Inertia matrix should be 4x4
+            testCase.verifyEqual(size(M), [4, 4]);
+            
+            % Inertia matrix should be symmetric
+            testCase.verifyEqual(M, M', 'AbsTol', 1e-10);
+            
+            % Inertia matrix should be positive definite (all eigenvalues > 0)
+            eigenvalues = eig(M);
+            testCase.assertTrue(all(eigenvalues > 0), 'Inertia matrix must be positive definite');
+            
+            % Base and wrist rotate independently of shoulder/elbow in this model
+            testCase.verifyEqual(M(1,2), 0);
+            testCase.verifyEqual(M(1,3), 0);
+        end
+
+        function testCoriolisVectorZeros(testCase)
+            d = dobot();
+            q = [0.1; 0.2; 0.3; 0.4];
+            
+            % If velocities are zero, coriolis vector must be zero
+            qd = [0; 0; 0; 0];
+            Cqd = d.coriolisVector(q, qd);
+            testCase.verifyEqual(Cqd, zeros(4,1));
+        end
+
+        function testInverseDynamicsStatic(testCase)
+            d = dobot(0.1, 0.2, 0.3, 0.4);
+            
+            % In a static case (velocity=0, acceleration=0)
+            % Torques should exactly equal the gravity vector
+            qd = zeros(4,1);
+            qdd = zeros(4,1);
+            
+            tau = d.inverseDynamics(qd, qdd);
+            G = d.gravityVector(); % Uses current angles by default
+            
+            testCase.verifyEqual(tau, G, 'AbsTol', 1e-10);
+        end
+
+        function testInverseDynamicsWithTerms(testCase)
+             d = dobot(0.1, 0.2, 0.3, 0.4);
+             qd = [0.1; 0.2; -0.1; 0];
+             qdd = [1; -1; 0.5; 0];
+             
+             [tau, terms] = d.inverseDynamics(qd, qdd);
+             
+             % Reconstruct tau from terms to verify consistency
+             tau_reconstructed = terms.M * terms.qdd + terms.coriolis + terms.gravity;
+             testCase.verifyEqual(tau, tau_reconstructed, 'AbsTol', 1e-10);
+             
+             % Verify term sizes
+             testCase.verifyEqual(size(terms.M), [4,4]);
+             testCase.verifyEqual(size(terms.coriolis), [4,1]);
+             testCase.verifyEqual(size(terms.gravity), [4,1]);
+        end
     end
 end
