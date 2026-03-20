@@ -74,7 +74,7 @@
 
 \begin{figure}[h!]
     \centering
-    \vspace{-1.6cm}
+    %\vspace{-1.6cm}
     \includegraphics[width=0.58\textwidth]{figures/dobot_display_image.jpg}
     \caption{Dobot Magician Lite, taken from \cite{dobotManual}.}
     \label{fig:dobot_main}
@@ -86,27 +86,22 @@
 
 \vspace{0.2cm}
 This project presents the kinematic modelling and MATLAB-based analysis of the
-Dobot Magician Lite robot arm with a MATLAB implementation of the model.
+Dobot Magician Lite (DM-Lite) robot arm with a MATLAB implementation of the model.
 
 \section{Introduction}
 
-Robot manipulators are widely used across industrial, medical and educational
+Robot manipulators are essential in industrial, medical and educational
 domains because of their precision, repeatability and programmability
-\cite{siciliano2009, craig2005}. Common applications include pick-and-place operations,
-assembly lines, and laboratory automation. In educational environments, robotic
-arms such as the Dobot Magician Lite are used for teaching robotics concepts.
+\cite{siciliano2009, craig2005}. Common applications include pick-and-place,
+assembly, and laboratory automation. In educational environments, 
+arms such as the DM-Lite are used for teaching robotics.
 
-The Dobot Magician Lite is in the category of anthropomorphic manipulator. A desktop serial manipulator, particularly suited for
-educational use, consisting of four revolute joints (J1--J4), forming an
-articulated robotic arm structure. 
+Classified as an anthropomorphic manipulator \cite{siciliano2009}, its all-revolute 
+configuration offers superior dexterity and a large spherical workspace relative to its footprint. 
+however, it lacks direct correspondence between joint DOFs and Cartesian space, resulting in variable 
+positioning accuracy and significant gravitational stress compared to Cartesian or SCARA systems. 
 
-Based on the Siciliano textbook, the Magician Lite is an anthropomorphic manipulator, making it the most dexterous configuration 
-because all joints are revolute. Its workspace is a large portion of a sphere relative to its compact size, yet it suffers from a 
-loss of correspondence between joint DOFs and Cartesian space. Unlike Cartesian robots, its positioning accuracy varies across the workspace, and it faces mechanical stress from gravity that other arms avoid.
-
-The aim of this project was to develop an analytical and MATLAB-based model of
-the Dobot Magician Lite and to evaluate its forward kinematics, inverse
-kinematics, Jacobian, singularities, dynamic equations, and validation behaviour.
+This project develops a MATLAB-based model to evaluate its kinematics, Jacobian, singularities, and dynamic behavior.
 
 \section{Kinematic Modelling}
 \label{sec:kinematic_modelling}
@@ -130,14 +125,14 @@ happens at the end of the passive link, so the passive link's rotation still
 applies to the frame from joint 3 as shown in Table~\ref{tab:dh_parameters}.
 
 
-\subsection{Denavit--Hartenberg Parameterisation}
+\subsection{Denavit-Hartenberg Parameterisation}
 
 \begin{figure}[htbp]
     \centering
    % \vspace{-0.1cm}
     \input{figures/dh_frame.tex}
-    \caption{Denavit--Hartenberg frame assignment used for the kinematic
-    modelling of the Dobot Magician Lite manipulator. $z_2$ and $z_3$ are coming
+    \caption{Denavit-Hartenberg frame assignment used for the kinematic
+    modelling of the DM-Lite manipulator. $z_2$ and $z_3$ are coming
     out of the page.}
    % \vspace{-0.45cm}
 \end{figure}
@@ -145,11 +140,11 @@ applies to the frame from joint 3 as shown in Table~\ref{tab:dh_parameters}.
 
 
 The coordinate frames were assigned according to the standard
-Denavit--Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
+Denavit-Hartenberg convention \cite{siciliano2009}. Each $z$-axis was aligned
 with the axis of rotation of the corresponding joint, while each $x$-axis was
 defined along the common normal between adjacent joint axes. 
 
-The Denavit--Hartenberg parameter table derived from the frame assignment is
+The Denavit-Hartenberg parameter table derived from the frame assignment is
 
 \begin{table}[htbp]
 \centering
@@ -165,15 +160,15 @@ P - Passive & 0 & $90^\circ$ & 0 & $-\theta_3 - \theta_2$ \\
 4 - End effector & 0 & $0^\circ$ & 0 & $\theta_4$ \\
 \bottomrule
 \end{tabular}
-\caption{Denavit--Hartenberg parameter table. Note $L_1=107\text{mm}$ and $L_2=L_3=150\text{mm}$.}
+\caption{Denavit-Hartenberg parameter table. Note $L_1=107\text{mm}$ and $L_2=L_3=150\text{mm}$.}
 \label{tab:dh_parameters}
 \end{table}
 
 
 \subsection{Forward kinematics}
 
-The forward kinematics of the Dobot Magician Lite were derived using the
-Denavit--Hartenberg convention. Homogeneous transformation matrices were derived
+The forward kinematics of the DM-Lite were derived using the
+Denavit-Hartenberg convention. Homogeneous transformation matrices were derived
 for each joint and multiplied to create the transformation matrix from the base
 frame to the end-effector frame, providing both rotation and cartesian position
 \cite{craig2005, denavit1955}.
@@ -301,14 +296,13 @@ And the value of $\sin \theta_3$ above is negative for the elbow-up condition
 
 \subsection{Kinematic Modelling Approach}
 
-The kinematic model of the Dobot Magician Lite was developed using the Denavit--Hartenberg (DH) convention. Each joint was
+The kinematic model of the DM-Lite was developed using the Denavit--Hartenberg (DH) convention. Each joint was
 modelled as a revolute joint, and the robot was approximated as an open
 kinematic chain, despite the physical presence of a four-bar linkage mechanism.
 
 \subsection{Inverse Kinematics Strategy}
-A geometric approach was selected for solving the inverse kinematics problem due to the relatively simple structure of the robot and
-the availability of clear geometric relationships between joint angles and
-end-effector position.
+A geometric approach was selected for the inverse kinematics problem, leveraging 
+the direct geometric relationships between joint angles and end-effector positions. 
 
 This approach was preferred over numerical methods due to its computational
 efficiency, analytical clarity, and suitability for real-time
@@ -347,14 +341,22 @@ the UI and unit tests. The dobot.m \cite{githubDobot} MATLAB class was written b
 contains the mathematical model.
 
 \section{Results and Validation}
-The MATLAB model was validated using forward-kinematics, inverse-kinematics and
-singularity test cases. Forward kinematics was checked by comparing computed
-end-effector positions with expected geometric outcomes, while inverse
-kinematics was verified by reconstructing joint configurations from target
-Cartesian positions. Additional tests \cite{githubDobotTests} were used to confirm singularity detection
-and rejection of unreachable targets.
+The MATLAB model was validated through forward kinematics (FK), inverse kinematics (IK), and 
+singularity testing. FK was verified by comparing computed end-effector positions against geometric expectations, 
+while IK was validated by reconstructing joint configurations from target Cartesian coordinates. 
+Consistency between these mappings confirms the model's internal mathematical integrity. 
 
-The validation results show good agreement between the analytical model and the MATLAB implementation. In particular, the consistency between the forward kinematics output and the inverse kinematics reconstruction confirms that the position mapping is internally correct. The singularity and unreachable-target tests further demonstrate that the implementation correctly handles important edge cases within the robot workspace.
+Furthermore, tests for unreachable targets and singularity detection [6] demonstrate that the implementation correctly 
+handles workspace edge cases. The results show strong agreement between the analytical derivations and the MATLAB implementation.
+
+%The MATLAB model was validated using forward-kinematics, inverse-kinematics and
+%singularity testing. Forward kinematics was checked by comparing computed
+%end-effector positions with expected geometric outcomes, while inverse
+%kinematics was verified by reconstructing joint configurations from target
+%Cartesian positions. Additional tests \cite{githubDobotTests} were used to confirm singularity detection
+%and rejection of unreachable targets.
+
+%The validation results show good agreement between the analytical model and the MATLAB implementation. In particular, the consistency between the forward kinematics output and the inverse kinematics reconstruction confirms that the position mapping is internally correct. The singularity and unreachable-target tests further demonstrate that the implementation correctly handles important edge cases within the robot workspace.
 
 \begin{figure}[H]
     \centering
@@ -370,31 +372,49 @@ The validation results show good agreement between the analytical model and the 
 \end{figure}
 
 \section{Discussion and Conclusion}
-This project developed and validated a kinematic model of the Dobot Magician
-Lite using the Denavit--Hartenberg formulation and implemented the main
-equations in MATLAB. Forward and inverse kinematics were derived analytically,
-the Jacobian was obtained for differential motion analysis, and singular
-configurations were identified from the analytical model. The resulting MATLAB
-implementation was able to reproduce valid end-effector positions and reject
-targets lying outside the reachable workspace.
 
-The actual robot is a series of 4-bar linkages \cite{cmuSimulation2022}. After
-chosing to simplify the robot to a series of 4-bar linkages, the end effector
-was no longer parallel to the ground. The solution to this is detailed in
-Subsection~\ref{subsec:passive_joint}.
+This project developed and validated a kinematic model of the DM-Lite using the Denavit–Hartenberg formulation. 
+Forward and inverse kinematics, the Jacobian for differential motion, and singular configurations were derived analytically and 
+implemented in MATLAB. The resulting model successfully reproduced valid end-effector positions while rejecting targets outside the 
+reachable workspace.
 
-A second challenge was the derivation of inverse kinematics
-in a form suitable for reliable computation; this was solved by reducing the
-problem to a planar geometric construction in the $r$--$z$ plane. 
+A primary challenge was the robot's 4-bar linkage system; simplifying this to a serial chain initially caused the 
+end-effector to lose its ground-parallel orientation, a problem addressed in Subsection 2.1.1. 
 
-As accurate link masses, centres of mass and
-inertia tensors were not available in sufficient detail from the manufacturer
-documentation, these were estimated in the model.
+Another issue with the Inverse kinematics was solved by reliably computing solutions 
+reducing the 3D problem to a planar geometric construction in the $r$–$z$ plane. Due to limited manufacturer data, link masses, centers of 
+mass, and inertia tensors were estimated. 
 
-In the MATLAB UI, animation of the robot's arm, while using a cosine easing
-function, linearly changes the joint angles from the initial value to the final
-values. In the future, we would like to implement animation that used the
-Jacobian to make the robot follow a specific path.
+While the current MATLAB UI utilizes a cosine easing function for joint-space animation, future work 
+will employ the Jacobian to enable Cartesian path-following.
+
+
+% This project developed and validated a kinematic model of the Dobot Magician
+% Lite using the Denavit-Hartenberg formulation and implemented the main
+% equations in MATLAB. Forward and inverse kinematics were derived analytically,
+% the Jacobian was obtained for differential motion analysis, and singular
+% configurations were identified from the analytical model. The resulting MATLAB
+% implementation was able to reproduce valid end-effector positions and reject
+% targets lying outside the reachable workspace.
+
+% The actual robot is a series of 4-bar linkages \cite{cmuSimulation2022}. After
+% chosing to simplify the robot to a series of 4-bar linkages, the end effector
+% was no longer parallel to the ground. The solution to this is detailed in
+% Subsection~\ref{subsec:passive_joint}.
+
+% A second challenge was the derivation of inverse kinematics
+% in a form suitable for reliable computation; this was solved by reducing the
+% problem to a planar geometric construction in the $r$--$z$ plane. 
+
+% As accurate link masses, centres of mass and
+% inertia tensors were not available in sufficient detail from the manufacturer
+% documentation, these were estimated in the model.
+
+% In the MATLAB UI, animation of the robot's arm, while using a cosine easing
+% function, linearly changes the joint angles from the initial value to the final
+% values. In the future, we would like to implement animation that used the
+% Jacobian to make the robot follow a specific path.
+
 
 \bibliographystyle{plain}
 \bibliography{references}
